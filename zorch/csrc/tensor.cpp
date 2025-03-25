@@ -1,10 +1,14 @@
 #include "tensor.h"
 #include "cpu.h"
+#include <cstdlib>
 #include <cuda_runtime_api.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+/// cuda.h中使用了类似`__host__`这样的cuda特性，
+/// 所以头文件必须放在`<cuda_runtime_api.h>`的后面
+#include "cuda.h"
 
 extern "C" {
 Tensor *create_tensor(float *data, int *shape, int ndim, char *device) {
@@ -60,14 +64,21 @@ Tensor *create_tensor(float *data, int *shape, int ndim, char *device) {
   return tensor;
 }
 
+/// 按照索引获取张量中的数值
 float get_item(Tensor *tensor, int *indices) {
   int index = 0;
+  // 计算在数组中真正的索引
   for (int i = 0; i < tensor->ndim; i++) {
     index += indices[i] * tensor->strides[i];
   }
 
   float result;
-  result = tensor->data[index];
+  if (strcmp(tensor->device, "cpu") == 0) {
+    result = tensor->data[index];
+  } else {
+    cudaMemcpy(&result, tensor->data + index, sizeof(float),
+               cudaMemcpyDeviceToHost);
+  }
 
   return result;
 }
@@ -94,7 +105,11 @@ void delete_shape(Tensor *tensor) {
 /// 将张量中的数据删除，需要判断数据所在位置：cpu还是cuda
 void delete_data(Tensor *tensor) {
   if (tensor->data != NULL) {
-    free(tensor->data);
+    if (strcmp(tensor->device, "cpu") == 0) {
+      free(tensor->data);
+    } else {
+      free_cuda(tensor->data);
+    }
     tensor->data = NULL;
   }
 }
@@ -111,6 +126,35 @@ void delete_device(Tensor *tensor) {
     free(tensor->device);
     tensor->device = NULL;
   }
+}
+
+void to_device(Tensor *tensor, char *target_device) {
+  int device_id = 0;
+  char *endptr;
+
+  char *target_device_type;
+
+  // 将字符串转换为long类型的数值
+  // "123abc" => 123, endptr指向'a'
+  long num = strtol(target_device, &endptr, 10);
+  if (*endptr == '\0') {
+    device_id = (int)num;
+    target_device_type = new char[strlen("cuda") + 1];
+    strcpy(target_device_type, "cuda");
+  } else {
+    target_device_type = new char[strlen("cpu") + 1];
+    strcpy(target_device_type, "cpu");
+  }
+
+  if ((strcmp(target_device_type, "cuda") == 0) &&
+      (strcmp(tensor->device, "cpu") == 0)) {
+    cpu_to_cuda(tensor, device_id);
+  } else if ((strcmp(target_device_type, "cpu") == 0) &&
+             (strcmp(tensor->device, "cuda") == 0)) {
+    cuda_to_cpu(tensor);
+  }
+
+  free(target_device_type);
 }
 
 Tensor *add_tensor(Tensor *tensor1, Tensor *tensor2) {
@@ -145,12 +189,19 @@ Tensor *add_tensor(Tensor *tensor1, Tensor *tensor2) {
     }
   }
 
-  float *result_data = (float *)malloc(tensor1->size * sizeof(float));
-  if (result_data == NULL) {
-    fprintf(stderr, "Memory allocation failed\n");
-    exit(1);
+  if (strcmp(tensor1->device, "cpu") == 0) {
+    float *result_data = (float *)malloc(tensor1->size * sizeof(float));
+    if (result_data == NULL) {
+      fprintf(stderr, "Memory allocation failed\n");
+      exit(1);
+    }
+    add_tensor_cpu(tensor1, tensor2, result_data);
+    return create_tensor(result_data, shape, ndim, tensor1->device);
+  } else {
+    float *result_data;
+    cudaMalloc((void **)&result_data, tensor1->size * sizeof(float));
+    add_tensor_cuda(tensor1, tensor2, result_data);
+    return create_tensor(result_data, shape, ndim, tensor1->device);
   }
-  add_tensor_cpu(tensor1, tensor2, result_data);
-  return create_tensor(result_data, shape, ndim, tensor1->device);
 }
 }

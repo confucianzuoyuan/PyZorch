@@ -145,6 +145,24 @@ class Tensor:
 
         return result_data
 
+    def to(self, device):
+        device = str(device)
+
+        self.device = device
+        self.device_ctype = self.device.encode('utf-8')
+
+        Tensor._C.to_device.argtypes = [
+            ctypes.POINTER(CTensor), ctypes.c_char_p]
+        Tensor._C.to_device.restype = None
+        Tensor._C.to_device(self.tensor, self.device_ctype)
+
+        return self
+
 
 if __name__ == "__main__":
-    print(Tensor([1,2]) + Tensor([3,4]))
+    t1 = Tensor([1, 2])
+    print(t1)
+    t2 = Tensor([3, 4])
+    t1.to("cuda")
+    t2.to("cuda")
+    print(t1 + t2)
