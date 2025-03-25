@@ -126,6 +126,25 @@ class Tensor:
     def __repr__(self):
         return self.__str__()
 
+    def __add__(self, other):
+        Tensor._C.add_tensor.argtypes = [
+            ctypes.POINTER(CTensor), ctypes.POINTER(CTensor)]
+        Tensor._C.add_tensor.restype = ctypes.POINTER(CTensor)
+
+        result_tensor_ptr = Tensor._C.add_tensor(self.tensor, other.tensor)
+
+        result_data = Tensor()
+        result_data.tensor = result_tensor_ptr
+        result_data.shape = self.shape.copy()
+        result_data.ndim = self.ndim
+
+        result_data.device = self.device
+        result_data.numel = self.numel
+
+        result_data.requires_grad = self.requires_grad or other.requires_grad
+
+        return result_data
+
 
 if __name__ == "__main__":
-    print(Tensor([[[1, 2], [3, 4]], [[5, 6], [7, 8]]]))
+    print(Tensor([1,2]) + Tensor([3,4]))
