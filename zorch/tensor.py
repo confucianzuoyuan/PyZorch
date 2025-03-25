@@ -97,6 +97,44 @@ class Tensor:
         return value
 
     def __str__(self):
+        if self.ndim == 1:
+            result = "tensor(["
+            result += ", ".join(str(self[i]) for i in range(self.numel))
+            result += f"""], device="{self.device}", requires_grad={self.requires_grad})"""
+            return result
+        if self.ndim == 2:
+            result = "tensor(["
+            result += "[" + ", ".join(str(self[tuple([0, i])])
+                                      for i in range(self.shape[1]))
+            for i in range(1, self.shape[0]):
+                result += "],\n" + " " * 8 + \
+                    "[" + ", ".join(str(self[tuple([i, j])])
+                                    for j in range(self.shape[1]))
+            result += f"""]], device="{self.device}", requires_grad={self.requires_grad})"""
+            return result
+        if self.ndim == 3:
+            result = "tensor([["
+            result += "[" + ", ".join(str(self[tuple([0, 0, i])])
+                                      for i in range(self.shape[-1]))
+            for i in range(1, self.shape[1]):
+                result += "],\n" + " " * 9 + \
+                    "[" + ", ".join(str(self[tuple([0, i, j])])
+                                    for j in range(self.shape[-1]))
+            result += "]],\n\n"
+
+            for i in range(1, self.shape[0]):
+                result += " " * 8 + \
+                    "[[" + ", ".join(str(self[tuple([i, 0, j])])
+                                     for j in range(self.shape[-1]))
+                for j in range(1, self.shape[1]):
+                    result += "],\n" + " " * 9 + \
+                        "[" + ", ".join(str(self[tuple([i, j, k])])
+                                        for k in range(self.shape[-1]))
+                if i < self.shape[0] - 1:
+                    result += "]],\n\n"
+            result += f"""]]], device="{self.device}", requires_grad={self.requires_grad})"""
+            return result
+
         def print_recursively(tensor, depth, index):
             if depth == tensor.ndim - 1:
                 result = ""
@@ -162,7 +200,9 @@ class Tensor:
 if __name__ == "__main__":
     t1 = Tensor([1, 2])
     print(t1)
-    t2 = Tensor([3, 4])
-    t1.to("cuda")
-    t2.to("cuda")
-    print(t1 + t2)
+    t2 = Tensor([[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12], [10, 11, 12]])
+    print(t2)
+    t3 = Tensor([[[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]], [[1, 2, 3], [4, 5, 6], [
+                7, 8, 9], [10, 11, 12]], [[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]]])
+    print(t3)
+    print(t3.shape)
