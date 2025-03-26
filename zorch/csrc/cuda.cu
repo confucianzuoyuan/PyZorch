@@ -138,9 +138,9 @@ __host__ void add_broadcasted_tensor_cuda(Tensor *tensor1, Tensor *tensor2,
   int number_of_blocks =
       (broadcasted_size + THREADS_PER_BLOCK - 1) / THREADS_PER_BLOCK;
 
-  add_broadcasted_tensor_cuda_kernel(tensor1->data, tensor2->data, result_data,
-                                     d_broadcasted_shape, d_strides1,
-                                     d_strides2, max_ndim, broadcasted_size);
+  add_broadcasted_tensor_cuda_kernel<<<number_of_blocks, THREADS_PER_BLOCK>>>(
+      tensor1->data, tensor2->data, result_data, d_broadcasted_shape,
+      d_strides1, d_strides2, max_ndim, broadcasted_size);
 
   cudaError_t error = cudaGetLastError();
   if (error != cudaSuccess) {
