@@ -61,7 +61,7 @@ $$
 所以
 
 $$
-\frac{dL}{dW_{dc}} = \sum_{j=1}^{q}\frac{\partial L}{\partial Y_{dj}}\frac{\partial Y_{dj}}{\partial W_{dc}}
+\frac{\partial L}{\partial W_{dc}} = \sum_{j=1}^{q}\frac{\partial L}{\partial Y_{dj}}\frac{\partial Y_{dj}}{\partial W_{dc}}
 $$
 
 而又因为
@@ -73,7 +73,7 @@ $$
 所以
 
 $$
-\frac{dL}{dW_{dc}} = \sum_{j=1}^{q}\frac{\partial L}{\partial Y_{dj}}X_{cj}
+\frac{\partial L}{\partial W_{dc}} = \sum_{j=1}^{q}\frac{\partial L}{\partial Y_{dj}}X_{cj}
 $$
 
 所以
