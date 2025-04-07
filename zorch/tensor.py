@@ -332,14 +332,3 @@ class Tensor:
         Tensor._C.to_device(self.tensor, self.device_ctype)
 
         return self
-
-
-if __name__ == "__main__":
-    t1 = Tensor([1, 2])
-    print(t1)
-    t2 = Tensor([[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12], [10, 11, 12]])
-    print(t2)
-    t3 = Tensor([[[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]], [[1, 2, 3], [4, 5, 6], [
-                7, 8, 9], [10, 11, 12]], [[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]]])
-    print(t3)
-    print(t3.shape)
