@@ -10,4 +10,7 @@ __global__ void add_tensor_cuda_kernel(float *data1, float *data2,
 __host__ void add_tensor_cuda(Tensor *tensor1, Tensor *tensor2,
                               float *result_data);
 
+__global__ void assign_tensor_cuda_kernel(float *data, float *result_data,
+                                          int size);
+__host__ void assign_tensor_cuda(Tensor *tensor, float *result_data);
 #endif

@@ -11,6 +11,13 @@ void add_tensor_cpu(Tensor *tensor1, Tensor *tensor2, float *result_data) {
   }
 }
 
+/// 将张量拷贝到内存
+void assign_tensor_cpu(Tensor *tensor, float *result_data) {
+  for (int i = 0; i < tensor->size; i++) {
+    result_data[i] = tensor->data[i];
+  }
+}
+
 /// 广播操作
 /// >>> import torch
 /// >>> torch.tensor([1,2,3]) + 1
@@ -19,25 +26,25 @@ void add_tensor_cpu(Tensor *tensor1, Tensor *tensor2, float *result_data) {
 /// # 创建一个 2x3 的张量
 /// tensor_a = torch.tensor([[1, 2, 3],
 ///                           [4, 5, 6]])
-/// 
+///
 /// # 创建一个标量
 /// scalar_b = 10
 /// tensor([[11, 12, 13],
 ///         [14, 15, 16]])
 ///
 /// import torch
-/// 
+///
 /// # 创建一个 2x3 的张量, ndim = 2
 /// tensor_a = torch.tensor([[1, 2, 3],
 ///                           [4, 5, 6]])
-/// 
+///
 /// # 创建一个 1x3 的张量, ndim = 1
 /// tensor_b = torch.tensor([10, 20, 30])
-/// 
+///
 /// # 广播加法, tensor_b 的形状是 (1, 3) 广播到 (2, 3)
 /// # 逐点相加
 /// result = tensor_a + tensor_b
-/// 
+///
 /// print(result)
 /// tensor([[11, 22, 33],
 ///         [14, 25, 36]])
@@ -50,7 +57,7 @@ void add_tensor_cpu(Tensor *tensor1, Tensor *tensor2, float *result_data) {
 /// >>> ta + tb
 /// tensor([[[11, 22, 33],
 ///          [14, 25, 36]],
-/// 
+///
 ///         [[41, 52, 63],
 ///          [44, 55, 66]]])
 /// 计算过程：
@@ -86,11 +93,14 @@ void add_broadcasted_tensor_cpu(Tensor *tensor1, Tensor *tensor2,
   }
 
   // i = 2:
-  //   dim1 = 1; dim2 = 3; strides1[2] = 0; strides2[2] = 1; stride1 = 1; stride2 = 3;
+  //   dim1 = 1; dim2 = 3; strides1[2] = 0; strides2[2] = 1; stride1 = 1;
+  //   stride2 = 3;
   // i = 1:
-  //   dim1 = 2; dim2 = 1; strides1[1] = 1; strides2[1] = 0; stride1 = 2; stride2 = 3;
+  //   dim1 = 2; dim2 = 1; strides1[1] = 1; strides2[1] = 0; stride1 = 2;
+  //   stride2 = 3;
   // i = 0:
-  //   dim1 = 3; dim2 = 2; strides1[0] = 0; strides2[0] = 3; stride1 = 2; stride2 = 6;
+  //   dim1 = 3; dim2 = 2; strides1[0] = 0; strides2[0] = 3; stride1 = 2;
+  //   stride2 = 6;
   // strides1 = [0, 1, 0];
   // strides2 = [3, 0, 1];
   int stride1 = 1, stride2 = 1;

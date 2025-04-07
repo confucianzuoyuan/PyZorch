@@ -1,6 +1,5 @@
 #include "tensor.h"
 #include "cpu.h"
-#include <cstdlib>
 #include <cuda_runtime_api.h>
 #include <math.h>
 #include <stdio.h>
@@ -202,6 +201,47 @@ Tensor *add_tensor(Tensor *tensor1, Tensor *tensor2) {
     cudaMalloc((void **)&result_data, tensor1->size * sizeof(float));
     add_tensor_cuda(tensor1, tensor2, result_data);
     return create_tensor(result_data, shape, ndim, tensor1->device);
+  }
+}
+
+Tensor *reshape_tensor(Tensor *tensor, int *new_shape, int new_ndim) {
+  int ndim = new_ndim;
+  int *shape = (int *)malloc(ndim * sizeof(int));
+  if (shape == NULL) {
+    fprintf(stderr, "Memory allocation failed\n");
+    exit(1);
+  }
+
+  for (int i = 0; i < ndim; i++) {
+    shape[i] = new_shape[i];
+  }
+
+  // 计算 new shape 中所有元素的数量
+  int size = 0;
+  for (int i = 0; i < new_ndim; i++) {
+    size *= shape[i];
+  }
+
+  // 检查所有元素的数量是否等于当前张量的大小
+  if (size != tensor->size) {
+    fprintf(stderr, "Cannot reshape tensor. Total number of elements in new "
+                    "shape does not match the current size of the tensor.\n");
+    exit(1);
+  }
+
+  if (strcmp(tensor->device, "cpu") == 0) {
+    float *result_data = (float *)malloc(tensor->size * sizeof(float));
+    if (result_data == NULL) {
+      fprintf(stderr, "Memory allocation failed\n");
+      exit(1);
+    }
+    assign_tensor_cpu(tensor, result_data);
+    return create_tensor(result_data, shape, ndim, tensor->device);
+  } else {
+    float *result_data;
+    cudaMalloc((void **)&result_data, tensor->size * sizeof(float));
+    assign_tensor_cuda(tensor, result_data);
+    return create_tensor(result_data, shape, ndim, tensor->device);
   }
 }
 }

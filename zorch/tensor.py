@@ -1,5 +1,6 @@
 import ctypes
 import os
+from .autograd.functions import *
 
 
 class CTensor(ctypes.Structure):
@@ -163,6 +164,52 @@ class Tensor:
 
     def __repr__(self):
         return self.__str__()
+
+    def reshape(self, new_shape):
+        # 计算张量中的元素总数量
+        total_elements = self.numel
+
+        # 检查 -1 的出现次数，不能大于 1
+        if new_shape.count(-1) > 1:
+            raise ValueError("Only one dimension can be inferred (set to -1).")
+
+        inferred_dim = None
+        known_dims_product = 1
+        for dim in new_shape:
+            if dim == -1:
+                inferred_dim = dim
+            else:
+                known_dims_product *= dim
+
+        # 如果 -1 在 new_shape 中，则计算 inferred dimension
+        if inferred_dim == -1:
+            inferred_dim_size = total_elements // known_dims_product
+            new_shape = [inferred_dim_size if dim == -
+                         1 else dim for dim in new_shape]
+
+        new_shape_ctype = (ctypes.c_int * len(new_shape))(*new_shape)
+        new_ndim_ctype = ctypes.c_int(len(new_shape))
+
+        # `Tensor *reshape_tensor(Tensor *tensor, int *new_shape, int new_ndim)``
+        Tensor._C.reshape_tensor.argtypes = [ctypes.POINTER(
+            CTensor), ctypes.POINTER(ctypes.c_int), ctypes.c_int]
+        Tensor._C.reshape_tensor.restype = ctypes.POINTER(CTensor)
+
+        result_tensor_ptr = Tensor._C.reshape_tensor(
+            self.tensor, new_shape_ctype, new_ndim_ctype)
+
+        result_data = Tensor()
+        result_data.tensor = result_tensor_ptr
+        result_data.shape = new_shape.copy()
+        result_data.ndim = len(new_shape)
+        result_data.device = self.device
+        result_data.numel = self.numel
+
+        result_data.requires_grad = self.requires_grad
+        if result_data.requires_grad:
+            result_data.grad_fn = ReshapeBackward(self)
+
+        return result_data
 
     def __add__(self, other):
         Tensor._C.add_tensor.argtypes = [
