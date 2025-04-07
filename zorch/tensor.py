@@ -1,6 +1,7 @@
 import ctypes
 import os
 from .autograd.functions import *
+from typing import Self
 
 
 class CTensor(ctypes.Structure):
@@ -211,22 +212,111 @@ class Tensor:
 
         return result_data
 
-    def __add__(self, other):
-        Tensor._C.add_tensor.argtypes = [
-            ctypes.POINTER(CTensor), ctypes.POINTER(CTensor)]
-        Tensor._C.add_tensor.restype = ctypes.POINTER(CTensor)
+    def ones_like(self):
+        Tensor._C.ones_like_tensor.argtypes = [ctypes.POINTER(CTensor)]
+        Tensor._C.ones_like_tensor.restype = ctypes.POINTER(CTensor)
+        Tensor._C.ones_like_tensor(self.tensor)
 
-        result_tensor_ptr = Tensor._C.add_tensor(self.tensor, other.tensor)
+        result_tensor_ptr = Tensor._C.ones_like_tensor(self.tensor)
 
         result_data = Tensor()
         result_data.tensor = result_tensor_ptr
         result_data.shape = self.shape.copy()
         result_data.ndim = self.ndim
-
         result_data.device = self.device
         result_data.numel = self.numel
 
-        result_data.requires_grad = self.requires_grad or other.requires_grad
+        return result_data
+
+    def zeros_like(self):
+        Tensor._C.zeros_like_tensor.argtypes = [ctypes.POINTER(CTensor)]
+        Tensor._C.zeros_like_tensor.restype = ctypes.POINTER(CTensor)
+        Tensor._C.zeros_like_tensor(self.tensor)
+
+        result_tensor_ptr = Tensor._C.zeros_like_tensor(self.tensor)
+
+        result_data = Tensor()
+        result_data.tensor = result_tensor_ptr
+        result_data.shape = self.shape.copy()
+        result_data.ndim = self.ndim
+        result_data.device = self.device
+        result_data.numel = self.numel
+
+        return result_data
+
+    def __add__(self, other: Self):
+        if isinstance(other, (int, float)):
+            other = other * self.ones_like()
+
+        broadcasted_shape_add = []
+
+        # 决定是否需要广播，如果需要广播则获取广播形状
+        def broadcast_shape(shape1, shape2):
+            if shape1 == shape2:
+                return shape1, False
+
+            max_len = max(len(shape1), len(shape2))
+            shape1 = [1] * (max_len - len(shape1)) + shape1
+            shape2 = [1] * (max_len - len(shape2)) + shape2
+
+            for dim1, dim2 in zip(shape1, shape2):
+                if dim1 != dim2 and dim1 != 1 and dim2 != 1:
+                    raise ValueError(
+                        "Shapes are not compatible for broadcasting")
+                broadcasted_shape_add.append(max(dim1, dim2))
+
+            return broadcasted_shape_add, True
+
+        broadcasted_shape_add, needs_broadcasting = broadcast_shape(
+            self.shape, other.shape)
+
+        if needs_broadcasting:
+            # 如果需要广播，则调用add_broadcasted_tensor函数
+            if other.ndim == self.ndim - 1:
+                other = other.reshape([1] + other.shape)
+            elif self.ndim == other.ndim - 1:
+                self = self.reshape([1] + self.shape)
+
+            Tensor._C.add_broadcasted_tensor.argtypes = [
+                ctypes.POINTER(CTensor), ctypes.POINTER(CTensor)]
+            Tensor._C.add_broadcasted_tensor.restype = ctypes.POINTER(CTensor)
+
+            result_tensor_ptr = Tensor._C.add_broadcasted_tensor(
+                self.tensor, other.tensor)
+
+            result_data = Tensor()
+            result_data.tensor = result_tensor_ptr
+            result_data.shape = broadcasted_shape_add.copy()
+            result_data.ndim = len(broadcasted_shape_add)
+            result_data.device = self.device
+            result_data.numel = 1
+            for s in result_data.shape:
+                result_data.numel *= s
+
+            result_data.requires_grad = self.requires_grad or other.requires_grad
+            if result_data.requires_grad:
+                result_data.grad_fn = AddBroadcastedBackward(self, other)
+        else:
+            # 如果两个张量形状相同，则调用add_tensor
+            Tensor._C.add_tensor.argtypes = [
+                ctypes.POINTER(CTensor), ctypes.POINTER(CTensor)]
+            Tensor._C.add_tensor.restype = ctypes.POINTER(CTensor)
+
+            result_tensor_ptr = Tensor._C.add_tensor(self.tensor, other.tensor)
+
+            result_data = Tensor()
+            result_data.tensor = result_tensor_ptr
+            result_data.shape = self.shape.copy()
+            result_data.ndim = self.ndim
+
+            result_data.device = self.device
+            # 在广播的情况下，如果想要计算正确的元素数量
+            # 则需要更新numel
+            result_data.numel = self.numel
+
+            result_data.requires_grad = self.requires_grad or other.requires_grad
+            if result_data.requires_grad:
+                result_data.grad_fn = AddBackward(self, other)
 
         return result_data
 

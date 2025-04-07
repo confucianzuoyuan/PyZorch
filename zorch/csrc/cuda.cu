@@ -1,4 +1,7 @@
+// clang-format off
 #include "tensor.h"
+#include "cuda.h"
+// clang-format on
 #include <float.h>
 #include <math.h>
 #include <stdio.h>
@@ -150,4 +153,50 @@ __host__ void add_broadcasted_tensor_cuda(Tensor *tensor1, Tensor *tensor2,
 
   cudaDeviceSynchronize();
   cudaFree(d_broadcasted_shape);
+}
+
+__global__ void zeros_like_tensor_cuda_kernel(float *data, float *result_data,
+                                              int size) {
+  int i = blockIdx.x * blockDim.x + threadIdx.x;
+  if (i < size) {
+    result_data[i] = 0.0;
+  }
+}
+
+__host__ void zeros_like_tensor_cuda(Tensor *tensor, float *result_data) {
+  int number_of_blocks =
+      (tensor->size + THREADS_PER_BLOCK - 1) / THREADS_PER_BLOCK;
+  zeros_like_tensor_cuda_kernel<<<number_of_blocks, THREADS_PER_BLOCK>>>(
+      tensor->data, result_data, tensor->size);
+
+  cudaError_t error = cudaGetLastError();
+  if (error != cudaSuccess) {
+    fprintf(stderr, "CUDA error: %s\n", cudaGetErrorString(error));
+    exit(1);
+  }
+
+  cudaDeviceSynchronize();
+}
+
+__global__ void ones_like_tensor_cuda_kernel(float *data, float *result_data,
+                                             int size) {
+  int i = blockIdx.x * blockDim.x + threadIdx.x;
+  if (i < size) {
+    result_data[i] = 1.0;
+  }
+}
+
+__host__ void ones_like_tensor_cuda(Tensor *tensor, float *result_data) {
+  int number_of_blocks =
+      (tensor->size + THREADS_PER_BLOCK - 1) / THREADS_PER_BLOCK;
+  zeros_like_tensor_cuda_kernel<<<number_of_blocks, THREADS_PER_BLOCK>>>(
+      tensor->data, result_data, tensor->size);
+
+  cudaError_t error = cudaGetLastError();
+  if (error != cudaSuccess) {
+    fprintf(stderr, "CUDA error: %s\n", cudaGetErrorString(error));
+    exit(1);
+  }
+
+  cudaDeviceSynchronize();
 }
