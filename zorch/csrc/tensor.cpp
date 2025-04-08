@@ -224,8 +224,7 @@ Tensor *reshape_tensor(Tensor *tensor, int *new_shape, int new_ndim) {
 
   // 检查所有元素的数量是否等于当前张量的大小
   if (size != tensor->size) {
-    fprintf(stderr, "Cannot reshape tensor. Total number of elements in new "
-                    "shape does not match the current size of the tensor.\n");
+    fprintf(stderr, "无法 reshape 张量。新张量的元素数量是：%d，旧张量的元素数量是：%d 。\n", size, tensor->size);
     exit(1);
   }
 
