@@ -5,4 +5,4 @@ input = zorch.Tensor(
 print(input.ones_like())
 print(input.zeros_like())
 print(input.shape)
-print(input.reshape((5, 3)))
+print(input.reshape([3, 5]))

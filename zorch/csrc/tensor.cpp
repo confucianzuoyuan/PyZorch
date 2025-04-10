@@ -217,7 +217,7 @@ Tensor *reshape_tensor(Tensor *tensor, int *new_shape, int new_ndim) {
   }
 
   // 计算 new shape 中所有元素的数量
-  int size = 0;
+  int size = 1;
   for (int i = 0; i < new_ndim; i++) {
     size *= shape[i];
   }
