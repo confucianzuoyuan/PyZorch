@@ -235,18 +235,11 @@
 
 假设
 
-\[\mathbf{x} = \begin{bmatrix}
-           x_1\\
-           x_2\\
-           x_3\\
-           \end{bmatrix}\]
+\[\mathbf{x} = [x_1, x_2, x_3]\]
 
 以及
 
-\[\mathbf{y} = \begin{bmatrix}
-           y_1\\
-           y_2\\
-           \end{bmatrix}\]
+\[\mathbf{y} = [y_1, y_2]\]
 
 和
 
@@ -307,26 +300,18 @@ z_1 &= g_1(y_1, y_2) \\
 \begin{equation*}
   \begin{aligned}
     \frac{\partial z_1}{\partial \mathbf{x}} &= 
-    \begin{bmatrix}
-    \frac{\partial z_1}{\partial x_1} \\
-    \frac{\partial z_1}{\partial x_2} \\
-    \frac{\partial z_1}{\partial x_3} \\
-    \end{bmatrix}
-    =
-    \begin{bmatrix}
-      \frac{\partial z_1}{\partial y_1}\frac{\partial y_1}{\partial x_1}+\frac{\partial z_1}{\partial y_2}\frac{\partial y_2}{\partial x_1} \\
-      \frac{\partial z_1}{\partial y_1}\frac{\partial y_1}{\partial x_2}+\frac{\partial z_1}{\partial y_2}\frac{\partial y_2}{\partial x_2} \\
-      \frac{\partial z_1}{\partial y_1}\frac{\partial y_1}{\partial x_3}+\frac{\partial z_1}{\partial y_2}\frac{\partial y_2}{\partial x_3} \\
-    \end{bmatrix} \\
+    [\frac{\partial z_1}{\partial x_1}, \frac{\partial z_1}{\partial x_2}, \frac{\partial z_1}{\partial x_3}] \\
     &=
+    [
+      \frac{\partial z_1}{\partial y_1}\frac{\partial y_1}{\partial x_1}+\frac{\partial z_1}{\partial y_2}\frac{\partial y_2}{\partial x_1},
+      \frac{\partial z_1}{\partial y_1}\frac{\partial y_1}{\partial x_2}+\frac{\partial z_1}{\partial y_2}\frac{\partial y_2}{\partial x_2},
+      \frac{\partial z_1}{\partial y_1}\frac{\partial y_1}{\partial x_3}+\frac{\partial z_1}{\partial y_2}\frac{\partial y_2}{\partial x_3}
+    ] \\
+    &=
+    [\frac{\partial z_1}{\partial y_1}, \frac{\partial z_1}{\partial y_2}]
     \begin{bmatrix}
-      \frac{\partial y_1}{\partial x_1} & \frac{\partial y_2}{\partial x_1} \\
-      \frac{\partial y_1}{\partial x_2} & \frac{\partial y_2}{\partial x_2} \\
-      \frac{\partial y_1}{\partial x_3} & \frac{\partial y_2}{\partial x_3} \\
-    \end{bmatrix}
-    \begin{bmatrix}
-      \frac{\partial z_1}{\partial y_1} \\
-      \frac{\partial z_1}{\partial y_2} \\
+      \frac{\partial y_1}{\partial x_1} & \frac{\partial y_1}{\partial x_2} & \frac{\partial y_1}{\partial x_3} \\
+      \frac{\partial y_2}{\partial x_1} & \frac{\partial y_2}{\partial x_2} & \frac{\partial y_2}{\partial x_3} \\
     \end{bmatrix}
   \end{aligned}
 \end{equation*}
@@ -335,20 +320,25 @@ z_1 &= g_1(y_1, y_2) \\
 
 \begin{equation*}
   \begin{aligned}
-    \frac{\partial \mathbf{z^T}}{\partial \mathbf{x}} &= 
+    \frac{\partial \mathbf{z}}{\partial \mathbf{x}} &= 
     \begin{bmatrix}
-      \frac{\partial y_1}{\partial x_1} & \frac{\partial y_2}{\partial x_1} \\
-      \frac{\partial y_1}{\partial x_2} & \frac{\partial y_2}{\partial x_2} \\
-      \frac{\partial y_1}{\partial x_3} & \frac{\partial y_2}{\partial x_3} \\
+      \frac{\partial z_1}{\partial y_1} & \frac{\partial z_1}{\partial y_2} \\
+      \frac{\partial z_2}{\partial y_1} & \frac{\partial z_2}{\partial y_2} \\
+      \frac{\partial z_3}{\partial y_1} & \frac{\partial z_3}{\partial y_2} \\
     \end{bmatrix}
     \begin{bmatrix}
-      \frac{\partial z_1}{\partial y_1} & \frac{\partial z_2}{\partial y_1} & \frac{\partial z_3}{\partial y_1}\\
-      \frac{\partial z_1}{\partial y_2} & \frac{\partial z_2}{\partial y_2} & \frac{\partial z_3}{\partial y_2}\\
-    \end{bmatrix}
+      \frac{\partial y_1}{\partial x_1} & \frac{\partial y_1}{\partial x_2} & \frac{\partial y_1}{\partial x_3} \\
+      \frac{\partial y_2}{\partial x_1} & \frac{\partial y_2}{\partial x_2} & \frac{\partial y_2}{\partial x_3} \\
+    \end{bmatrix} \\
+    &=
+    \frac{\partial \mathbf{z}}{\partial \mathbf{y}}
+    \frac{\partial \mathbf{y^T}}{\partial \mathbf{x}}
   \end{aligned}
 \end{equation*}
 
-所以一个 $1 \times 3$ 的向量 $\mathbf{z}^T$ 对 一个 $3 \times 1$ 的向量 $\mathbf{x}$ 进行求导的结果是一个 $3 \times 3$ 的矩阵。
+所以一个 $3 \times 1$ 的向量 $\mathbf{z}$ 对 一个 $1 \times 3$ 的向量 $\mathbf{x}$ 进行求导的结果是一个 $3 \times 3$ 的矩阵。
+
+这里就是 $\mathbf{y}$ 作为输出时，应该是列向量。作为输入时，是行向量。所以这里有点疑问。
 
 \section{向量进行逐元素二元运算时的导数}
 
