@@ -342,9 +342,9 @@ z_1 &= g_1(y_1, y_2) \\
 
 \section{向量进行逐元素二元运算时的导数}
 
-对向量进行逐元素的二元操作，例如向量加法 $\mathbf{w} + \mathbf{x}$，是很重要的，因为我们可以将许多常见的向量操作（例如向量与标量的乘法）表示为逐元素的二元操作。我们所说的“逐元素二元操作”只是意味着将一个运算符应用于每个向量的第一个元素，以获得输出的第一个元素，然后对输入的第二个元素进行相同操作，以获得输出的第二个元素，依此类推。这就是 numpy 或 tensorflow 中所有基本数学运算符的默认应用方式。例如，在深度学习中经常出现的例子有 $max(\mathbf{w},\mathbf{x})$ 和 $\mathbf{w} > \mathbf{x}$（返回一个由 1 和 0 组成的向量）。
+对向量进行逐元素的二元运算，例如向量加法 $\mathbf{w} + \mathbf{x}$，是很重要的，因为我们可以将许多常见的向量运算（例如向量与标量的乘法）表示为逐元素的二元运算。我们所说的“逐元素二元运算”只是意味着将一个运算符应用于每个向量的第一个元素，以获得输出的第一个元素，然后对输入的第二个元素进行相同操作，以获得输出的第二个元素，依此类推。这就是 numpy 或 tensorflow 中所有基本数学运算符的默认应用方式。例如，在深度学习中经常出现的例子有 $max(\mathbf{w},\mathbf{x})$ 和 $\mathbf{w} > \mathbf{x}$（返回一个由 1 和 0 组成的向量）。
 
-我们可以用符号 $\mathbf{y} = \mathbf{f(w)} \bigcirc \mathbf{g(x)}$ 来概括逐元素的二元操作，其中 $m=n=|y|=|w|=|x|$。（提示：$|x|$ 是 $x$ 中的元素数量。）符号 $\bigcirc$ 表示任何逐元素运算符（例如 $+$），而不是 $\circ$ 函数复合运算符。当我们放大查看标量方程时，方程 $\mathbf{y} = \mathbf{f(w)} \bigcirc \mathbf{g(x)}$ 的样子如下：
+我们可以用符号 $\mathbf{y} = \mathbf{f(w)} \bigcirc \mathbf{g(x)}$ 来概括逐元素的二元运算，其中 $m=n=|y|=|w|=|x|$。（提示：$|x|$ 是 $x$ 中的元素数量。）符号 $\bigcirc$ 表示任何逐元素运算符（例如 $+$），而不是 $\circ$ 函数复合运算符。当我们放大查看标量方程时，方程 $\mathbf{y} = \mathbf{f(w)} \bigcirc \mathbf{g(x)}$ 的样子如下：
 
 \[\begin{bmatrix}
            y_1\\
@@ -380,11 +380,11 @@ z_1 &= g_1(y_1, y_2) \\
 \frac{\partial}{\partial x_1} ( f_{n}(\mathbf{w}) \bigcirc g_{n}(\mathbf{x}) ) & \frac{\partial}{\partial x_2} ( f_{n}(\mathbf{w}) \bigcirc g_{n}(\mathbf{x}) ) & \ldots & \frac{\partial}{\partial x_n} ( f_{n}(\mathbf{w}) \bigcirc g_{n}(\mathbf{x}) )\\
 \end{bmatrix}\]
 
-这确实是个复杂的问题，但幸运的是，雅可比矩阵通常是一个对角矩阵，即除了对角线以外的地方都是零的矩阵。因为这大大简化了雅可比矩阵，我们来详细检查一下在什么情况下雅可比矩阵会简化为逐元素操作的对角矩阵。
+这确实是个复杂的问题，但幸运的是，雅可比矩阵通常是一个对角矩阵，即除了对角线以外的地方都是零的矩阵。因为这大大简化了雅可比矩阵，我们来详细检查一下在什么情况下雅可比矩阵会简化为逐元素运算的对角矩阵。
 
 在对角雅可比矩阵中，所有非对角元素都是零，即 $\frac{\partial}{\partial w_j} ( f_i(\mathbf{w}) \bigcirc g_i(\mathbf{x}) ) = 0$，其中 $j \neq i$。（注意，我们是对 $w_j$ 而不是 $w_i$ 进行偏导数运算。）在什么条件下这些非对角元素为零？恰恰是在 $f_i$ 和 $g_i$ 对 $w_j$ 是常数时，即 $\frac{\partial}{\partial w_j} f_i(\mathbf{w}) = \frac{\partial}{\partial w_j} g_i(\mathbf{x}) = 0$。无论运算符是什么，如果这些偏导数为零，运算结果也将为零，$0 \bigcirc 0 = 0$，无论如何，常数的偏导数为零。
 
-当 $f_i$ 和 $g_i$ 不依赖于 $w_j$ 时，这些偏导数为零。我们知道逐元素操作意味着 $f_i$ 仅仅是 $w_i$ 的函数，而 $g_i$ 仅仅是 $x_i$ 的函数。例如，$\mathbf{w}+\mathbf{x}$ 计算的是 $w_i + x_i$。因此，$f_i(\mathbf{w}) \bigcirc g_i(\mathbf{x})$ 简化为 $f_i(w_i) \bigcirc g_i(x_i)$，目标变为 $\frac{\partial}{\partial w_j} f_i(w_i) = \frac{\partial}{\partial w_j} g_i(x_i) = 0$。当 $j \neq i$ 时，$f_i(w_i)$ 和 $g_i(x_i)$ 对于关于 $w_j$ 的偏导数运算符看起来像常数，因此非对角线上的偏导数为零。（符号 $f_i(w_i)$ 在技术上是对我们符号的滥用，因为 $f_i$ 和 $g_i$ 是向量的函数，而不是单个元素的函数。我们应该写成类似 $\hat f_{i}(w_i) = f_{i}(\mathbf{w})$ 的形式，但那样会使方程更加混乱，而程序员习惯于函数重载，所以我们还是继续使用这种符号。）
+当 $f_i$ 和 $g_i$ 不依赖于 $w_j$ 时，这些偏导数为零。我们知道逐元素运算意味着 $f_i$ 仅仅是 $w_i$ 的函数，而 $g_i$ 仅仅是 $x_i$ 的函数。例如，$\mathbf{w}+\mathbf{x}$ 计算的是 $w_i + x_i$。因此，$f_i(\mathbf{w}) \bigcirc g_i(\mathbf{x})$ 简化为 $f_i(w_i) \bigcirc g_i(x_i)$，目标变为 $\frac{\partial}{\partial w_j} f_i(w_i) = \frac{\partial}{\partial w_j} g_i(x_i) = 0$。当 $j \neq i$ 时，$f_i(w_i)$ 和 $g_i(x_i)$ 对于关于 $w_j$ 的偏导数运算符看起来像常数，因此非对角线上的偏导数为零。（符号 $f_i(w_i)$ 在技术上是对我们符号的滥用，因为 $f_i$ 和 $g_i$ 是向量的函数，而不是单个元素的函数。我们应该写成类似 $\hat f_{i}(w_i) = f_{i}(\mathbf{w})$ 的形式，但那样会使方程更加混乱，而程序员习惯于函数重载，所以我们还是继续使用这种符号。）
 
 我们将在稍后利用这个简化，并将 $f_i(\mathbf{w})$ 和 $g_i(\mathbf{x})$ 至多访问 $w_i$ 和 $x_i$ 的约束称为 {\em 逐元素对角条件}。
 
@@ -409,7 +409,7 @@ z_1 &= g_1(y_1, y_2) \\
 
 其中 $diag(\mathbf{x})$ 构造一个矩阵，其对角元素来自向量 $\mathbf{x}$。
 
-由于我们进行大量简单的向量运算，二元逐元素操作中的一般函数 $\mathbf{f(w)}$ 通常只是向量 $\mathbf{w}$。每当一般函数是一个向量时，我们知道 $f_i(\mathbf{w})$ 简化为 $f_i(w_i) = w_i$。例如，向量加法 $\mathbf{w + x}$ 符合我们的逐元素对角条件，因为 $\mathbf{f(w)} + \mathbf{g(x)}$ 有标量方程 $y_i = f_i(\mathbf{w}) + g_i(\mathbf{x})$，这简化为 $y_i = f_i(w_i) + g_i(x_i) = w_i + x_i$，其偏导数为：
+由于我们进行大量简单的向量运算，二元逐元素运算中的一般函数 $\mathbf{f(w)}$ 通常只是向量 $\mathbf{w}$。每当一般函数是一个向量时，我们知道 $f_i(\mathbf{w})$ 简化为 $f_i(w_i) = w_i$。例如，向量加法 $\mathbf{w + x}$ 符合我们的逐元素对角条件，因为 $\mathbf{f(w)} + \mathbf{g(x)}$ 有标量方程 $y_i = f_i(\mathbf{w}) + g_i(\mathbf{x})$，这简化为 $y_i = f_i(w_i) + g_i(x_i) = w_i + x_i$，其偏导数为：
 
 \[\frac{\partial}{\partial w_i} ( f_{i}(w_i) + g_{i}(x_i) ) = \frac{\partial}{\partial w_i}(w_i + x_i) = 1 + 0 = 1\]\[\frac{\partial}{\partial x_i} ( f_{i}(w_i) + g_{i}(x_i) ) = \frac{\partial}{\partial x_i}(w_i + x_i) = 0 + 1 = 1\]
 
@@ -419,7 +419,7 @@ z_1 &= g_1(y_1, y_2) \\
 
 \[
 \begin{array}{lllllllll}
-        \text{\bf{Op}} &  & {\text{\bf Partial with respect to }} \mathbf{w} \\
+        \text{\bf{运算符}} &  & {\text{\bf 对于 }} \mathbf{w} {\text{\bf 的偏导数}} \\
         + &  & \frac{\partial (\mathbf{w+x})}{\partial \mathbf{w}} = diag(\ldots \frac{\partial (w_i + x_i)}{\partial w_i} \ldots) = diag(\vec{1}) = I \\\\
         - &  & \frac{\partial (\mathbf{w-x})}{\partial \mathbf{w}}  =  diag(\ldots\frac{\partial (w_i - x_i)}{\partial w_i}\ldots) =  diag(\vec{1})  =  I \\\\
         \otimes &  & \frac{\partial (\mathbf{w \otimes x})}{\partial \mathbf{w}}  =  diag(\ldots\frac{\partial (w_i \times x_i)}{\partial w_i} \ldots)  =  diag(\mathbf{x}) \\\\
@@ -427,7 +427,7 @@ z_1 &= g_1(y_1, y_2) \\
 \end{array}
 \]\[
 \begin{array}{lllllllll}
-        \text{\bf{Op}} &  &  {\text{\bf Partial with respect to }}\mathbf{x}\\
+        \text{\bf{运算符}} &  &  {\text{\bf 对于 }}\mathbf{x} {\text{\bf 的偏导数}} \\
         + &  & \frac{\partial (\mathbf{w+x})}{\partial \mathbf{x}} =  I\\\\
         - &  & \frac{\partial (\mathbf{w-x})}{\partial \mathbf{x}}  =  diag(\ldots\frac{\partial (w_i - x_i)}{\partial x_i}\ldots)  =  diag(-\vec{1})  =  -I \\\\
         \otimes &  &  \frac{\partial (\mathbf{w \otimes x})}{\partial \mathbf{x}}  =  diag(\mathbf{w})\\\\
