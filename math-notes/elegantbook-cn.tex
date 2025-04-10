@@ -1,23 +1,54 @@
-\documentclass{ctexart}
-\usepackage[fleqn]{amsmath}
+\documentclass[lang=cn,newtx,10pt,scheme=chinese]{elegantbook}
+
+\title{数学笔记}
+\subtitle{深度学习相关数学}
+
+\author{左元}
+
+\setcounter{tocdepth}{3}
+
+\logo{logo-blue.png}
+\cover{cover.jpg}
+
+% 本文档命令
+\usepackage{array}
+\newcommand{\ccr}[1]{\makecell{{\color{#1}\rule{1cm}{1cm}}}}
+
+% 修改标题页的橙色带
+\definecolor{customcolor}{RGB}{32,178,170}
+\colorlet{coverlinecolor}{customcolor}
+\usepackage{cprotect}
+
+\addbibresource[location=local]{reference.bib} % 参考文献，不要删除
 
 \begin{document}
+
+\maketitle
+\frontmatter
+
 \tableofcontents
 
-\section{标量导数法则}
+\mainmatter
 
-\begin{tabular}{p{0.20\linewidth}lp{0.30\linewidth}l}
+\chapter{标量导数法则}
+
+\begin{table}[htbp]
+\caption{标量导数法则}
+\centering
+\begin{tabular}{llll}
+\toprule
 {\bf 法则}&{\bf $f(x)$}&{\bf 和 $x$ 相关的标量导数记法}&{\bf 示例}\\
-
-{\bf 常数}&$c$&$0$&$\frac{d}{dx}99 = 0$\\
-{\bf 乘以常数}&$cf$&$c \frac{df}{dx}$&$\frac{d}{dx}3x = 3$\\
-{\bf 指数法则}&$x^n$&$nx^{n-1}$&$\frac{d}{dx}x^3 = 3x^2$\\
-{\bf 加法法则}&$f + g$&$\frac{df}{dx} + \frac{dg}{dx}$&$\frac{d}{dx} (x^2 + 3x) = 2x + 3$\\
-{\bf 减法法则}&$f - g$&$\frac{df}{dx} - \frac{dg}{dx}$&$\frac{d}{dx}(x^2 - 3x) = 2x - 3$\\
-{\bf 乘法法则}&$fg$&$f \frac{dg}{dx} + \frac{df}{dx} g$&$\frac{d}{dx}x^2x = x^2 + x2x = 3x^2$\\
-{\bf 链式法则}&$f(g(x))$&$\frac{df(u)}{du}\frac{du}{dx}$,  let $u=g(x)$&$\frac{d}{dx} ln(x^2) = \frac{1}{x^2}2x = \frac{2}{x}$\\
-
+\midrule
+{\bf 常数}&$c$&$0$&$\frac{d}{dx}99 = 0$\\[0.2em]
+{\bf 乘以常数}&$cf$&$c \frac{df}{dx}$&$\frac{d}{dx}3x = 3$\\[0.2em]
+{\bf 指数法则}&$x^n$&$nx^{n-1}$&$\frac{d}{dx}x^3 = 3x^2$\\[0.2em]
+{\bf 加法法则}&$f + g$&$\frac{df}{dx} + \frac{dg}{dx}$&$\frac{d}{dx} (x^2 + 3x) = 2x + 3$\\[0.2em]
+{\bf 减法法则}&$f - g$&$\frac{df}{dx} - \frac{dg}{dx}$&$\frac{d}{dx}(x^2 - 3x) = 2x - 3$\\[0.2em]
+{\bf 乘法法则}&$fg$&$f \frac{dg}{dx} + \frac{df}{dx} g$&$\frac{d}{dx}x^2x = x^2 + x2x = 3x^2$\\[0.2em]
+{\bf 链式法则}&$f(g(x))$&$\frac{df(u)}{du}\frac{du}{dx}$,  let $u=g(x)$&$\frac{d}{dx} ln(x^2) = \frac{1}{x^2}2x = \frac{2}{x}$\\[0.2em]
+\bottomrule
 \end{tabular}
+\end{table}
 
 举例：
 
@@ -25,12 +56,11 @@
 \frac{d}{dx} 9(x + x^2) = 9 \frac{d}{dx}(x + x^2) = 9 (\frac{d}{dx}x + \frac{d}{dx}x^2) = 9(1 + 2x) = 9 + 18x
 \]
 
-\section{矢量微积分与偏导数简介}
-
+\chapter{矢量微积分与偏导数简介}
 
 神经网络层不是单一参数的单一函数，$f(x)$ 。因此，让我们继续讨论多参数函数，如 $f(x, y)$ 。例如，$xy$（即 $x$ 和 $y$ 的乘积）的导数是什么？换句话说，当我们调整变量时，乘积 $xy$ 如何变化？这取决于我们是在改变 $x$ 还是 $y$ 。我们一次计算一个变量（参数）的导数，从而为这个双参数函数得到两个不同的偏导数（一个关于 $x$ ，一个关于 $y$ ）。偏导数运算符不是使用运算符 $\frac{d}{dx}$ ，而是 $\frac{\partial}{\partial x}$（一个风格化的 $d$ ，而不是希腊字母 $\delta$ ）。因此，$\frac{\partial}{\partial x}xy$ 和 $\frac{\partial}{\partial y}xy$ 是 $xy$ 的偏导数；通常，这些简称为偏导数。对于单一参数的函数，运算符 $\frac{\partial}{\partial x}$ 等价于 $\frac{d}{dx}$ （对于足够光滑的函数）。然而，最好使用 $\frac{d}{dx}$ 以明确你指的是标量导数。
 
-关于 $x$ 的偏导数就是通常的标量导数，只需将方程中的任何其他变量视为常数。考虑函数 $f(x, y) = 3xy$ 。关于 $x$ 的偏导数写作 $3xy$ 。从 $\frac{\partial}{\partial x}$ 的角度来看，有三个常数：$3$、$2$ 和 $y$ 。因此，$\frac{\partial}{\partial x} 3yx^2 = 3y\frac{\partial}{\partial x} x^2 = 3y2x = 6yx$ 。关于 $y$ 的偏导数将 $x$ 视为常数：$\frac{\partial}{\partial y} 3x^2y = 3x^2\frac{\partial}{\partial y} y = 3x^2\frac{\partial y}{\partial y} = 3x^2 \times 1 = 3x^2$。在继续之前，最好自己推导这些内容，否则文章的其余部分将无法理解。
+关于 $x$ 的偏导数就是通常的标量导数，只需将方程中的任何其他变量视为常数。考虑函数 $f(x, y) = 3x^2y$ 。关于 $x$ 的偏导数写作 $3xy$ 。从 $\frac{\partial}{\partial x}$ 的角度来看，有三个常数：$3$、$2$ 和 $y$ 。因此，$\frac{\partial}{\partial x} 3yx^2 = 3y\frac{\partial}{\partial x} x^2 = 3y2x = 6yx$ 。关于 $y$ 的偏导数将 $x$ 视为常数：$\frac{\partial}{\partial y} 3x^2y = 3x^2\frac{\partial}{\partial y} y = 3x^2\frac{\partial y}{\partial y} = 3x^2 \times 1 = 3x^2$。在继续之前，最好自己推导这些内容，否则文章的其余部分将无法理解。
 
 为了明确我们正在进行的是向量微积分而不仅仅是多元微积分，让我们考虑如何处理偏导数 $\frac{\partial f(x,y)}{\partial x}$ 和 $\frac{\partial f(x,y)}{\partial y}$ （另一种表示 $\frac{\partial}{\partial x}f(x,y)$ 和 $\frac{\partial }{\partial y}f(x,y)$ 的方式），我们为 $f(x, y) = 3x^2y$ 计算这些值。与其让它们随意漂浮且没有任何组织，不如将它们组织成一个水平向量。我们称这个向量为 $f(x, y)$ 的梯度，并将其写作：
 
@@ -38,7 +68,7 @@
 
 因此，$f(x, y)$ 的梯度就是其偏导数组成的向量。梯度是向量微积分世界的一部分，它处理的是将 $n$ 个标量参数映射到单个标量的函数。现在，让我们大胆一点，同时考虑多个函数的导数。
 
-\section{矩阵微积分}
+\chapter{矩阵微积分}
 
 当我们从单一函数的导数转向多个函数的导数时，我们便从向量微积分的世界进入了矩阵微积分的领域。让我们计算两个函数的偏导数，这两个函数都接受两个参数。我们可以沿用上一节中的 $f(x, y) = 3x^2y$，但同时也引入 $g(x, y) = 2x + y^8$。$g$ 的梯度有两个条目，每个参数对应一个偏导数：
 
@@ -71,7 +101,7 @@
 \end{bmatrix}
 \]
 
-\subsection{雅可比矩阵的推广}
+\section{雅可比矩阵的推广}
 
 到目前为止，我们已经看了一个雅可比矩阵的具体例子。为了更一般地定义雅可比矩阵，让我们将多个参数组合成一个单一的向量参数：$f(x, y, z) \Rightarrow f(\mathbf{x})$ 。（在文献中，你有时也会看到用 $\vec{x}$ 表示向量。）粗体小写字母如 $\mathbf{x}$ 表示向量，斜体小写字母如 $x$ 表示标量。$x_i$ 是向量 $\mathbf{x}$ 的第 $i^{th}$ 个元素，并且是斜体，因为单个向量元素是标量。我们还必须为向量 $\mathbf{x}$ 定义一个方向。我们假设所有向量默认都是垂直的，大小为 $n \times 1$：
 
@@ -96,7 +126,7 @@
 
 \[
 \begin{array}{lllllllll}
- y_1 = f_1(\mathbf{x}) = 3x_1^2x_2  &&&(\text{substituting }x_1 \text{ for }x, x_2 \text{ for }y)\\
+ y_1 = f_1(\mathbf{x}) = 3x_1^2x_2  &&&(\text{使用}x_1 \text{替换掉}x, x_2 \text{替换掉}y)\\
  y_2 = f_2(\mathbf{x}) = 2x_1 + x_2^8
 \end{array}
 \]
@@ -179,7 +209,7 @@
 	\ldots\\
 	~\frac{\partial}{\partial {x_1}} x_n~ \frac{\partial}{\partial {x_2}} x_n ~\ldots~ \frac{\partial}{\partial {x_n}} x_n \\
 	\end{bmatrix}\\\\
-	& & (\text{and since } \frac{\partial}{\partial {x_j}} x_i = 0 \text{ for } j \neq i)\\
+	& & (\text{且因为对于} j \neq i, \frac{\partial}{\partial {x_j}} x_i = 0)\\
 	 & = & \begin{bmatrix}
 	\frac{\partial}{\partial {x_1}} x_1 & 0 & \ldots& 0 \\
 	0 & \frac{\partial}{\partial {x_2}} x_2 &\ldots & 0 \\
@@ -192,16 +222,135 @@
 	& & \ddots\\
 	0 & 0 & \ldots &1 \\
 	\end{bmatrix}\\\\
-	& = & I ~~~(I \text{ is the identity matrix with ones down the diagonal})\\
+	& = & I ~~~(I \text{ 是单位矩阵，也就是主对角线都是 1 的矩阵。})\\
 	\end{eqnarray*}
 
 \end{center}
 
-在继续之前，请确保您能够推导出上述每一步。如果遇到困难，可以单独考虑矩阵的每个元素，并应用通常的标量导数规则。这是一个通常有用的技巧：将向量表达式简化为一组标量表达式，然后对所有偏导数进行求解，最后适当地将结果组合成向量和矩阵。
+在继续之前，请确保你能够推导出上述每一步。如果遇到困难，可以单独考虑矩阵的每个元素，并应用通常的标量导数规则。这是一个通常有用的技巧：将向量表达式简化为一组标量表达式，然后对所有偏导数进行求解，最后适当地将结果组合成向量和矩阵。
 
-还要注意跟踪矩阵是垂直的 $\mathbf{x}$ 还是水平的 $\mathbf{x}^T$，其中 $\mathbf{x}^T$ 表示 $\mathbf{x}$ 的转置。同时，请确保您注意某个东西是标量值函数 $y = ...\,$ 还是函数向量（或向量值函数） $\mathbf{y} = ...\,$。
+还要注意跟踪矩阵是垂直的 $\mathbf{x}$ 还是水平的 $\mathbf{x}^T$，其中 $\mathbf{x}^T$ 表示 $\mathbf{x}$ 的转置。同时，请确保注意某个函数是标量值函数 $y = ...\,$ 还是函数向量（或向量值函数） $\mathbf{y} = ...\,$。
 
-\subsection{向量进行逐元素二元运算时的导数}
+\section{示例}
+
+假设
+
+\[\mathbf{x} = \begin{bmatrix}
+           x_1\\
+           x_2\\
+           x_3\\
+           \end{bmatrix}\]
+
+以及
+
+\[\mathbf{y} = \begin{bmatrix}
+           y_1\\
+           y_2\\
+           \end{bmatrix}\]
+
+和
+
+\[\mathbf{z} = \begin{bmatrix}
+           z_1\\
+           z_2\\
+           z_3\\
+           \end{bmatrix}\]
+
+其中
+
+\begin{equation*}
+\begin{matrix}
+z_1 = g_1(\mathbf{y}) \\
+z_2 = g_2(\mathbf{y}) \\
+z_3 = g_3(\mathbf{y}) \\
+\end{matrix}
+\end{equation*}
+
+以及
+
+\begin{equation*}
+\begin{matrix}
+y_1 = f_1(\mathbf{x}) \\
+y_2 = f_2(\mathbf{x}) \\
+\end{matrix}
+\end{equation*}
+
+使用向量的写法只是多元函数的简洁表示法。所以，
+
+\begin{equation*}
+\begin{aligned}
+z_1 &= g_1(y_1, y_2) \\
+    &= g_1(f_1(x_1, x_2, x_3), f_2(x_1, x_2, x_3))
+\end{aligned}
+\end{equation*}
+
+所以
+
+\begin{equation*}
+\frac{\partial z_1}{\partial x_1} = \frac{\partial z_1}{\partial y_1}\frac{\partial y_1}{\partial x_1}+\frac{\partial z_1}{\partial y_2}\frac{\partial y_2}{\partial x_1}
+\end{equation*}
+
+同样的道理
+
+\begin{equation*}
+\frac{\partial z_1}{\partial x_2} = \frac{\partial z_1}{\partial y_1}\frac{\partial y_1}{\partial x_2}+\frac{\partial z_1}{\partial y_2}\frac{\partial y_2}{\partial x_2}
+\end{equation*}
+
+还有
+
+\begin{equation*}
+\frac{\partial z_1}{\partial x_3} = \frac{\partial z_1}{\partial y_1}\frac{\partial y_1}{\partial x_3}+\frac{\partial z_1}{\partial y_2}\frac{\partial y_2}{\partial x_3}
+\end{equation*}
+
+所以有，
+
+\begin{equation*}
+  \begin{aligned}
+    \frac{\partial z_1}{\partial \mathbf{x}} &= 
+    \begin{bmatrix}
+    \frac{\partial z_1}{\partial x_1} \\
+    \frac{\partial z_1}{\partial x_2} \\
+    \frac{\partial z_1}{\partial x_3} \\
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+      \frac{\partial z_1}{\partial y_1}\frac{\partial y_1}{\partial x_1}+\frac{\partial z_1}{\partial y_2}\frac{\partial y_2}{\partial x_1} \\
+      \frac{\partial z_1}{\partial y_1}\frac{\partial y_1}{\partial x_2}+\frac{\partial z_1}{\partial y_2}\frac{\partial y_2}{\partial x_2} \\
+      \frac{\partial z_1}{\partial y_1}\frac{\partial y_1}{\partial x_3}+\frac{\partial z_1}{\partial y_2}\frac{\partial y_2}{\partial x_3} \\
+    \end{bmatrix} \\
+    &=
+    \begin{bmatrix}
+      \frac{\partial y_1}{\partial x_1} & \frac{\partial y_2}{\partial x_1} \\
+      \frac{\partial y_1}{\partial x_2} & \frac{\partial y_2}{\partial x_2} \\
+      \frac{\partial y_1}{\partial x_3} & \frac{\partial y_2}{\partial x_3} \\
+    \end{bmatrix}
+    \begin{bmatrix}
+      \frac{\partial z_1}{\partial y_1} \\
+      \frac{\partial z_1}{\partial y_2} \\
+    \end{bmatrix}
+  \end{aligned}
+\end{equation*}
+
+所以有
+
+\begin{equation*}
+  \begin{aligned}
+    \frac{\partial \mathbf{z^T}}{\partial \mathbf{x}} &= 
+    \begin{bmatrix}
+      \frac{\partial y_1}{\partial x_1} & \frac{\partial y_2}{\partial x_1} \\
+      \frac{\partial y_1}{\partial x_2} & \frac{\partial y_2}{\partial x_2} \\
+      \frac{\partial y_1}{\partial x_3} & \frac{\partial y_2}{\partial x_3} \\
+    \end{bmatrix}
+    \begin{bmatrix}
+      \frac{\partial z_1}{\partial y_1} & \frac{\partial z_2}{\partial y_1} & \frac{\partial z_3}{\partial y_1}\\
+      \frac{\partial z_1}{\partial y_2} & \frac{\partial z_2}{\partial y_2} & \frac{\partial z_3}{\partial y_2}\\
+    \end{bmatrix}
+  \end{aligned}
+\end{equation*}
+
+所以一个 $1 \times 3$ 的向量 $\mathbf{z}^T$ 对 一个 $3 \times 1$ 的向量 $\mathbf{x}$ 进行求导的结果是一个 $3 \times 3$ 的矩阵。
+
+\section{向量进行逐元素二元运算时的导数}
 
 对向量进行逐元素的二元操作，例如向量加法 $\mathbf{w} + \mathbf{x}$，是很重要的，因为我们可以将许多常见的向量操作（例如向量与标量的乘法）表示为逐元素的二元操作。我们所说的“逐元素二元操作”只是意味着将一个运算符应用于每个向量的第一个元素，以获得输出的第一个元素，然后对输入的第二个元素进行相同操作，以获得输出的第二个元素，依此类推。这就是 numpy 或 tensorflow 中所有基本数学运算符的默认应用方式。例如，在深度学习中经常出现的例子有 $max(\mathbf{w},\mathbf{x})$ 和 $\mathbf{w} > \mathbf{x}$（返回一个由 1 和 0 组成的向量）。
 

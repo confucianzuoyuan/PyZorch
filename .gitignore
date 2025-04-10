@@ -2,3 +2,8 @@ __pycache__/
 *.aux
 *.log
 *.toc
+*.xml
+*.out
+*.bcf
+*.log
+*.cpt
