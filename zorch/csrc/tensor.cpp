@@ -224,7 +224,10 @@ Tensor *reshape_tensor(Tensor *tensor, int *new_shape, int new_ndim) {
 
   // 检查所有元素的数量是否等于当前张量的大小
   if (size != tensor->size) {
-    fprintf(stderr, "无法 reshape 张量。新张量的元素数量是：%d，旧张量的元素数量是：%d 。\n", size, tensor->size);
+    fprintf(stderr,
+            "无法 reshape 张量。新张量的元素数量是：%d，旧张量的元素数量是：%d "
+            "。\n",
+            size, tensor->size);
     exit(1);
   }
 
@@ -296,6 +299,66 @@ Tensor *ones_like_tensor(Tensor *tensor) {
     float *result_data;
     cudaMalloc((void **)&result_data, tensor->size * sizeof(float));
     ones_like_tensor_cuda(tensor, result_data);
+    return create_tensor(result_data, shape, ndim, tensor->device);
+  }
+}
+
+Tensor *sum_tensor(Tensor *tensor, int axis, bool keepdim) {
+  int ndim;
+  int *shape;
+
+  if (axis > tensor->ndim - 1) {
+    fprintf(stderr,
+            "Error: axis argument %d must be smaller than tensor dimension %d",
+            axis, tensor->ndim);
+    exit(1);
+  }
+
+  if (axis == -1) {
+    shape = (int *)malloc(sizeof(int));
+    shape[0] = 1;
+    ndim = 1;
+  } else {
+    shape = (int *)malloc((tensor->ndim - 1) * sizeof(int));
+    for (int i = 0, j = 0; i < tensor->ndim; ++i) {
+      if (i != axis) {
+        shape[j++] = tensor->shape[i];
+      }
+    }
+    ndim = tensor->ndim - 1;
+  }
+
+  int axis_size = 1;
+  for (int i = 0; i < ndim; i++) {
+    axis_size *= shape[i];
+  }
+
+  if (strcmp(tensor->device, "cpu") == 0) {
+    float *result_data = (float *)calloc(axis_size, sizeof(float));
+    if (result_data == NULL) {
+      fprintf(stderr, "Memory allocation failed\n");
+      exit(1);
+    }
+
+    sum_tensor_cpu(tensor, result_data, axis_size, shape, axis);
+
+    if (keepdim) {
+      if (axis == -1) {
+        ndim = tensor->ndim;
+        shape = (int *)malloc((tensor->ndim) * sizeof(int));
+        for (int i = 0; i < tensor->ndim; i++) {
+          shape[i] = 1;
+        }
+      } else {
+        shape = (int *)malloc((tensor->ndim) * sizeof(int));
+        for (int i = 0; i < tensor->ndim; i++) {
+          shape[i] = tensor->shape[i];
+        }
+        shape[axis] = 1;
+        ndim = tensor->ndim;
+      }
+    }
+
     return create_tensor(result_data, shape, ndim, tensor->device);
   }
 }

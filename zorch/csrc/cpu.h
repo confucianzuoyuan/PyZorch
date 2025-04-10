@@ -29,4 +29,7 @@ void ones_like_tensor_cpu(Tensor *tensor, float *result_data);
 
 void assign_tensor_cpu(Tensor *tensor, float *result_data);
 
+void sum_tensor_cpu(Tensor *tensor, float *result_data, int size,
+                    int *result_shape, int axis);
+
 #endif

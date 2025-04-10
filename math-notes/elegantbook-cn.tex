@@ -437,4 +437,29 @@ z_1 &= g_1(y_1, y_2) \\
 
 $\otimes$ 和 $\oslash$ 运算符分别表示逐元素乘法和除法；$\otimes$ 有时被称为 {\em 哈达玛积}。对于逐元素乘法和除法没有标准的符号，因此我们使用与我们的一般二元运算符号一致的方法。
 
+\section{涉及标量扩展的导数}
+
+当我们将标量与向量相乘或相加时，我们实际上是在隐式地将标量扩展为向量，然后执行逐元素的二元运算。例如，将标量 $z$ 加到向量 $\mathbf{x}$ 上，$\mathbf{y} = \mathbf{x} + z$，实际上是 $\mathbf{y} = \mathbf{f(x)} + \mathbf{g}(z)$，其中 $\mathbf{f(x)} = \mathbf{x}$ 和 $\mathbf{g}(z) = \vec{1} z$。（符号 $\vec{1}$ 表示适当长度的全 1 向量。）$z$ 是一个不依赖于 $\mathbf{x}$ 的标量，这一点很有用，因为这样 $\frac{\partial z}{\partial x_i} = 0$ 对于任何 $x_i$ 都成立，这将简化我们的偏导数计算。（在这里将变量 $z$ 视为常量是可以的。）类似地，乘以标量 $\mathbf{y} = \mathbf{x} z$ 实际上是 $\mathbf{y} = \mathbf{f(x)} \otimes \mathbf{g}(z) = \mathbf{x} \otimes \vec{1} z$，其中 $\otimes$ 是两个向量的逐元素乘法（哈达玛积）。
+
+向量-标量加法和乘法关于向量 $\mathbf{x}$ 的偏导数使用我们的逐元素规则：
+\[ \frac{\partial \mathbf{y}}{\partial \mathbf{x}} = diag \left( \ldots \frac{\partial}{\partial x_i} ( f_i(x_i) \bigcirc g_i(z) ) \ldots \right)\]
+这是因为函数 $\mathbf{f(x)} = \mathbf{x}$ 和 $\mathbf{g}(z) = \vec{1} z$ 显然满足我们对雅可比矩阵的逐元素对角条件（即 $f_i(\mathbf{x})$ 至多只与 $x_i$ 有关，而 $g_i(z)$ 与 $\vec{1} z$ 向量的第 $i$ 个值有关）。
+
+使用标量偏导数的常规规则，我们得到了向量-标量加法的雅可比矩阵的对角元素：
+\[\frac{\partial}{\partial x_i} ( f_i(x_i) + g_i(z) ) = \frac{\partial (x_i + z)}{\partial x_i} = \frac{\partial x_i}{\partial x_i} + \frac{\partial z}{\partial x_i} = 1 + 0 = 1\]
+因此，$\frac{\partial}{\partial \mathbf{x}} ( \mathbf{x} + z ) = diag(\vec{1}) = I$。
+
+然而，关于标量参数 $z$ 的偏导数计算结果是一个垂直向量，而不是对角矩阵。该向量的元素为：
+\[ \frac{\partial}{\partial z} ( f_i(x_i) + g_i(z) ) = \frac{\partial (x_i + z)}{\partial z} = \frac{\partial x_i}{\partial z} + \frac{\partial z}{\partial z} = 0 + 1 = 1\]
+因此，$\frac{\partial}{\partial z} ( \mathbf{x} + z ) = \vec{1}$。
+
+向量-标量乘法的雅可比矩阵的对角元素涉及标量导数的乘积法则：
+\[ \frac{\partial}{\partial x_i} ( f_i(x_i) \otimes g_i(z) ) = x_i  \frac{\partial z}{\partial x_i} + z  \frac{\partial x_i}{\partial x_i} = 0 + z = z\]
+因此，$\frac{\partial}{\partial \mathbf{x}} ( \mathbf{x} z ) = diag(\vec{1}  z) = I z$。
+
+关于标量参数 $z$ 的偏导数是一个垂直向量，其元素为：
+\[\frac{\partial}{\partial z} ( f_i(x_i) \otimes g_i(z) ) = x_i \frac{\partial z}{\partial z} + z \frac{\partial x_i}{\partial z} = x_i + 0 = x_i\]
+这给我们 $\frac{\partial}{\partial z} ( \mathbf{x} z ) = \mathbf{x}$。
+
+
 \end{document}

@@ -154,3 +154,35 @@ void zeros_like_tensor_cpu(Tensor *tensor, float *result_data) {
     result_data[i] = 0.0;
   }
 }
+
+void sum_tensor_cpu(Tensor *tensor, float *result_data, int size,
+                    int *result_shape, int axis) {
+  if (axis == -1) {
+    // 将所有元素相加
+    float sum = 0.0;
+    for (int i = 0; i < tensor->size; i++) {
+      sum += tensor->data[i];
+    }
+    *result_data = sum;
+  } else {
+    if (axis < 0 || axis >= tensor->ndim) {
+      fprintf(stderr, "Invalid axis");
+      exit(1);
+    }
+
+    int axis_stride = tensor->strides[axis];
+
+    for (int i = 0; i < tensor->shape[axis]; i++) {
+      for (int j = 0; j < size; j++) {
+        int index = 0;
+        int remainder = j;
+        for (int k = tensor->ndim - 2; k >= 0; k--) {
+          index += (remainder % result_shape[k]) *
+                   tensor->strides[k < axis ? k : k + 1];
+          remainder /= result_shape[k];
+        }
+        result_data[j] += tensor->data[index + i * axis_stride];
+      }
+    }
+  }
+}

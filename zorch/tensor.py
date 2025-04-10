@@ -332,3 +332,50 @@ class Tensor:
         Tensor._C.to_device(self.tensor, self.device_ctype)
 
         return self
+
+    def sum(self, axis=None, keepdim=False) -> Self:
+        if axis is not None and axis < 0:
+            axis = self.ndim + axis
+
+        if axis == None:
+            axis = -1
+
+        if axis > self.ndim - 1:
+            raise ValueError(
+                f"Error: axis argument {axis} cannot be higher than tensor dimension {self.ndim}")
+
+        Tensor._C.sum_tensor.argtypes = [
+            ctypes.POINTER(CTensor), ctypes.c_int, ctypes.c_bool]
+        Tensor._C.sum_tensor.restype = ctypes.POINTER(CTensor)
+
+        result_tensor_ptr = Tensor._C.sum_tensor(self.tensor, axis, keepdim)
+
+        result_data = Tensor()
+        result_data.tensor = result_tensor_ptr
+
+        if axis == -1:
+            if keepdim:
+                result_data.ndim = self.ndim
+                result_data.shape = [1] * self.ndim
+            else:
+                result_data.shape = [1]
+                result_data.ndim = 1
+        else:
+            if keepdim:
+                result_data.shape = self.shape[:axis] + \
+                    [1] + self.shape[axis+1:]
+            else:
+                result_data.shape = self.shape[:axis] + self.shape[axis+1:]
+            result_data.ndim = len(result_data.shape)
+
+        result_data.device = self.device
+        result_data.numel = 1
+
+        for s in result_data.shape:
+            result_data.numel *= s
+
+        result_data.requires_grad = self.requires_grad
+        if result_data.requires_grad:
+            result_data.grad_fn = SumBackward(self, axis, keepdim=keepdim)
+
+        return result_data
