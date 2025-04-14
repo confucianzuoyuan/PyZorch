@@ -21,10 +21,14 @@ class Tensor:
 
     def __init__(self, data=None, device="cpu", requires_grad=False):
         if data != None:
+            print("data: ", data)
             if isinstance(data, (float, int)):
                 data = [data]
 
             data, shape = self.flatten(data)
+            print("data: ", data)
+            print("shape: ", shape)
+            print("device: ", device)
 
             self.shape = shape.copy()
 
@@ -99,51 +103,13 @@ class Tensor:
         return value
 
     def __str__(self):
-        if self.ndim == 1:
-            result = "tensor(["
-            result += ", ".join(str(self[i]) for i in range(self.numel))
-            result += f"""], device="{self.device}", requires_grad={self.requires_grad})"""
-            return result
-        if self.ndim == 2:
-            result = "tensor(["
-            result += "[" + ", ".join(str(self[tuple([0, i])])
-                                      for i in range(self.shape[1]))
-            for i in range(1, self.shape[0]):
-                result += "],\n" + " " * 8 + \
-                    "[" + ", ".join(str(self[tuple([i, j])])
-                                    for j in range(self.shape[1]))
-            result += f"""]], device="{self.device}", requires_grad={self.requires_grad})"""
-            return result
-        if self.ndim == 3:
-            result = "tensor([["
-            result += "[" + ", ".join(str(self[tuple([0, 0, i])])
-                                      for i in range(self.shape[-1]))
-            for i in range(1, self.shape[1]):
-                result += "],\n" + " " * 9 + \
-                    "[" + ", ".join(str(self[tuple([0, i, j])])
-                                    for j in range(self.shape[-1]))
-            result += "]],\n\n"
-
-            for i in range(1, self.shape[0]):
-                result += " " * 8 + \
-                    "[[" + ", ".join(str(self[tuple([i, 0, j])])
-                                     for j in range(self.shape[-1]))
-                for j in range(1, self.shape[1]):
-                    result += "],\n" + " " * 9 + \
-                        "[" + ", ".join(str(self[tuple([i, j, k])])
-                                        for k in range(self.shape[-1]))
-                if i < self.shape[0] - 1:
-                    result += "]],\n\n"
-            result += f"""]]], device="{self.device}", requires_grad={self.requires_grad})"""
-            return result
-
         def print_recursively(tensor, depth, index):
             if depth == tensor.ndim - 1:
                 result = ""
                 for i in range(tensor.shape[-1]):
                     index[-1] = i
                     result += str(tensor[tuple(index)]) + ", "
-                return result.strip().strip(",")
+                return result.strip()
             else:
                 result = ""
                 if depth > 0:
@@ -151,8 +117,7 @@ class Tensor:
                 for i in range(tensor.shape[depth]):
                     index[depth] = i
                     result += "["
-                    result += print_recursively(tensor,
-                                                depth + 1, index) + "],"
+                    result += print_recursively(tensor, depth + 1, index) + "],"
                     if i < tensor.shape[depth] - 1:
                         result += "\n" + " " * (depth * 4)
                 return result.strip(",")
