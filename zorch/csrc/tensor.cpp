@@ -1,5 +1,6 @@
 #include "tensor.h"
 #include "cpu.h"
+#include <cstdlib>
 #include <cuda_runtime_api.h>
 #include <math.h>
 #include <stdio.h>
@@ -341,6 +342,34 @@ Tensor *sum_tensor(Tensor *tensor, int axis, bool keepdim) {
     }
 
     sum_tensor_cpu(tensor, result_data, axis_size, shape, axis);
+
+    if (keepdim) {
+      if (axis == -1) {
+        ndim = tensor->ndim;
+        shape = (int *)malloc((tensor->ndim) * sizeof(int));
+        for (int i = 0; i < tensor->ndim; i++) {
+          shape[i] = 1;
+        }
+      } else {
+        shape = (int *)malloc((tensor->ndim) * sizeof(int));
+        for (int i = 0; i < tensor->ndim; i++) {
+          shape[i] = tensor->shape[i];
+        }
+        shape[axis] = 1;
+        ndim = tensor->ndim;
+      }
+    }
+
+    return create_tensor(result_data, shape, ndim, tensor->device);
+  } else {
+    float *result_data;
+    if (axis == -1) {
+      cudaMalloc((void **)&result_data, tensor->size * sizeof(float));
+    } else {
+      cudaMalloc((void **)&result_data, axis_size * sizeof(float));
+    }
+
+    sum_tensor_cuda(tensor, result_data, axis);
 
     if (keepdim) {
       if (axis == -1) {

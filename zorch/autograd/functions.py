@@ -30,4 +30,37 @@ class AddBroadcastedBackward:
         return [grad_x, grad_y]
 
     def _reshape_gradient(self, gradient, shape):
+        while len(gradient.shape) > len(shape):
+            gradient = gradient.sum(axis=0)
+
+        for i in range(len(shape)):
+            if shape[i] == 1:
+                gradient = gradient.sum(axis=i, keepdim=True)
+
         return gradient
+
+
+class SumBackward:
+    def __init__(self, x, axis=None, keepdim=False):
+        self.input = [x]
+        self.axis = axis
+        self.keepdim = keepdim
+
+    def backward(self, gradient):
+        input_shape = self.input[0].shape.copy()
+        if self.axis == -1:
+            grad_output = float(
+                gradient[[0] * len(gradient.shape)]) * self.input[0].ones_like()
+        else:
+            if self.keepdim:
+                input_shape = input_shape[:self.axis] + \
+                    [1] + input_shape[self.axis+1:]
+            else:
+                input_shape = input_shape[:self.axis] + \
+                    input_shape[self.axis+1:]
+
+            grad_output_shape = list(input_shape)
+            grad_output = gradient.reshape(grad_output_shape)
+            grad_output = grad_output + self.input[0].zeros_like()
+
+        return [grad_output]

@@ -22,4 +22,12 @@ __global__ void ones_like_tensor_cuda_kernel(float *data, float *result_data,
                                              int size);
 __host__ void ones_like_tensor_cuda(Tensor *tensor, float *result_data);
 
+__global__ void sum_tensor_cuda_kernel(float *data, float *result_data,
+                                       int size);
+__global__ void sum_tensor_cuda_kernel_axis(float *data, float *result_data,
+                                            int *strides, int *shape, int axis,
+                                            int ndim, int axis_stride, int size,
+                                            int result_size);
+__host__ void sum_tensor_cuda(Tensor *tensor, float *result_data, int axis);
+
 #endif
