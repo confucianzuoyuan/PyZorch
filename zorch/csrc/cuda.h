@@ -30,4 +30,12 @@ __global__ void sum_tensor_cuda_kernel_axis(float *data, float *result_data,
                                             int result_size);
 __host__ void sum_tensor_cuda(Tensor *tensor, float *result_data, int axis);
 
+__global__ void make_contiguous_tensor_cuda_kernel(float *data,
+                                                   float *result_data, int ndim,
+                                                   int size, int *strides,
+                                                   int *new_strides);
+
+__host__ void make_contiguous_tensor_cuda(Tensor *tensor, float *result_data,
+                                          int *new_strides);
+
 #endif

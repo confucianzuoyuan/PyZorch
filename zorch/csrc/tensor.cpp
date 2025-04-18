@@ -1,5 +1,6 @@
 #include "tensor.h"
 #include "cpu.h"
+#include <cstddef>
 #include <cstdlib>
 #include <cuda_runtime_api.h>
 #include <math.h>
@@ -301,6 +302,33 @@ Tensor *ones_like_tensor(Tensor *tensor) {
     cudaMalloc((void **)&result_data, tensor->size * sizeof(float));
     ones_like_tensor_cuda(tensor, result_data);
     return create_tensor(result_data, shape, ndim, tensor->device);
+  }
+}
+
+void make_contiguous(Tensor *tensor) {
+  int *new_strides = (int *)malloc(tensor->ndim * sizeof(int));
+  if (new_strides == NULL) {
+    fprintf(stderr, "Memory allocation failed\n");
+    exit(1);
+  }
+
+  int stride = 1;
+  for (int i = tensor->ndim - 1; i >= 0; i--) {
+    new_strides[i] = stride;
+    stride *= tensor->shape[i];
+  }
+
+  if (strcmp(tensor->device, "cpu") == 0) {
+    float *result_data = (float *)malloc(tensor->size * sizeof(float));
+    if (result_data == NULL) {
+      fprintf(stderr, "Memory allocation failed\n");
+      exit(1);
+    }
+    make_contiguous_tensor_cpu(tensor, result_data, new_strides);
+  } else {
+    float *result_data;
+    cudaMalloc((void **)&result_data, tensor->size * sizeof(float));
+    make_contiguous_tensor_cuda(tensor, result_data, new_strides);
   }
 }
 
