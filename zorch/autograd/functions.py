@@ -64,3 +64,21 @@ class SumBackward:
             grad_output = grad_output + self.input[0].zeros_like()
 
         return [grad_output]
+
+
+class TransposeBackward:
+    def __init__(self, x, axis1, axis2):
+        self.input = [x]
+        self.axis1 = axis1
+        self.axis2 = axis2
+
+    def backward(self, gradient):
+        return [gradient.transpose(self.axis2, self.axis1)]
+
+
+class TBackward:
+    def __init__(self, x):
+        self.input = [x]
+
+    def backward(self, gradient):
+        return [gradient.T]

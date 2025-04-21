@@ -8,3 +8,7 @@ print(input.zeros_like())
 print(input.shape)
 print(input.reshape([3, 5]))
 print(input.sum(1))
+
+a = zorch.Tensor([[1, 2, 3], [4, 5, 6]])
+a.to("cuda")
+print(a.T)

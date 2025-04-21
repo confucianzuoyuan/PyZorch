@@ -205,3 +205,40 @@ void make_contiguous_tensor_cpu(Tensor *tensor, float *result_data,
   tensor->data = result_data;
   tensor->strides = new_strides;
 }
+
+/// 1D Tensor 的转置
+void transpose_1D_tensor_cpu(Tensor *tensor, float *result_data) {
+  for (int i = 0; i < tensor->shape[0]; i++) {
+    result_data[i] = tensor->data[i];
+  }
+}
+
+/// 2D Tensor 的转置
+void transpose_2D_tensor_cpu(Tensor *tensor, float *result_data) {
+  int rows = tensor->shape[0];
+  int cols = tensor->shape[1];
+
+  for (int i = 0; i < rows; i++) {
+    for (int j = 0; j < cols; j++) {
+      result_data[j * rows + i] = tensor->data[i * cols + j];
+    }
+  }
+}
+
+/// 3D Tensor 的转置
+/// 3D Tensor 一般来说是 batch 个 2D Tensor 的数组
+/// 所以对 batch 中的每个 2D Tensor 做转置就可以了
+void transpose_3D_tensor_cpu(Tensor *tensor, float *result_data) {
+  int batch = tensor->shape[0];
+  int rows = tensor->shape[1];
+  int cols = tensor->shape[2];
+
+  for (int i = 0; i < batch; i++) {
+    for (int j = 0; j < rows; j++) {
+      for (int k = 0; k < cols; k++) {
+        result_data[k * rows * batch + j * batch + i] =
+            tensor->data[i * rows * cols + j * cols + k];
+      }
+    }
+  }
+}

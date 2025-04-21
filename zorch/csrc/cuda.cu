@@ -1,7 +1,14 @@
 // clang-format off
+#include "cpu.h"
 #include "tensor.h"
 #include "cuda.h"
 // clang-format on
+
+// 这里主要是为了代码提示
+#if 0
+#include <__clang_cuda_builtin_vars.h>
+#include <__clang_cuda_runtime_wrapper.h>
+#endif
 #include <float.h>
 #include <math.h>
 #include <stdio.h>
@@ -391,3 +398,92 @@ __host__ void make_contiguous_tensor_cuda(Tensor *tensor, float *result_data,
   tensor->data = result_data;
   tensor->strides = new_strides;
 }
+
+__global__ void transpose_1D_tensor_cuda_kernel(float *data, float *result_data,
+                                                int size) {
+  int i = blockIdx.x * blockDim.x + threadIdx.x;
+  if (i < size) {
+    result_data[i] = data[i];
+  }
+}
+
+__host__ void transpose_1D_tensor_cuda(Tensor *tensor, float *result_data) {
+  int number_of_blocks =
+      (tensor->size + THREADS_PER_BLOCK - 1) / THREADS_PER_BLOCK;
+  transpose_1D_tensor_cuda_kernel<<<number_of_blocks, THREADS_PER_BLOCK>>>(
+      tensor->data, result_data, tensor->size);
+
+  cudaError_t error = cudaGetLastError();
+  if (error != cudaSuccess) {
+    fprintf(stderr, "CUDA error: %s\n", cudaGetErrorString(error));
+    exit(1);
+  }
+
+  cudaDeviceSynchronize();
+}
+
+__global__ void transpose_2D_tensor_cuda_kernel(float *data, float *result_data,
+                                                int rows, int cols) {
+  int i = blockIdx.x * blockDim.x + threadIdx.x;
+  int j = blockIdx.y * blockDim.y + threadIdx.y;
+
+  if (i < rows && j < cols) {
+    result_data[j * rows + i] = data[i * cols + j];
+  }
+}
+
+__host__ void transpose_2D_tensor_cuda(Tensor *tensor, float *result_data) {
+  int rows = tensor->shape[0];
+  int cols = tensor->shape[1];
+
+  dim3 threadsPerBlock(16, 16);
+  dim3 number_of_blocks((rows + threadsPerBlock.x - 1) / threadsPerBlock.x,
+                        (cols + threadsPerBlock.y - 1) / threadsPerBlock.y);
+
+  transpose_2D_tensor_cuda_kernel<<<number_of_blocks, threadsPerBlock>>>(
+      tensor->data, result_data, rows, cols);
+
+  cudaError_t error = cudaGetLastError();
+  if (error != cudaSuccess) {
+    fprintf(stderr, "CUDA error: %s\n", cudaGetErrorString(error));
+    exit(1);
+  }
+
+  cudaDeviceSynchronize();
+}
+
+__global__ void transpose_3D_tensor_cuda_kernel(float *data, float *result_data,
+                                                int batch, int rows, int cols) {
+  int i = blockIdx.x * blockDim.x + threadIdx.x;
+  int j = blockIdx.y * blockDim.y + threadIdx.y;
+  int k = blockIdx.z * blockDim.z + threadIdx.z;
+
+  if (i < batch && j < rows && k < cols) {
+    result_data[k * rows * batch + j * batch + i] =
+        data[i * rows * cols + j * cols + k];
+  }
+}
+
+__host__ void transpose_3D_tensor_cuda(Tensor *tensor, float *result_data) {
+
+  int batch = tensor->shape[0];
+  int rows = tensor->shape[1];
+  int cols = tensor->shape[2];
+
+  dim3 threadsPerBlock(8, 8, 8);
+  dim3 number_of_blocks((batch + threadsPerBlock.x - 1) / threadsPerBlock.x,
+                        (rows + threadsPerBlock.y - 1) / threadsPerBlock.y,
+                        (cols + threadsPerBlock.z - 1) / threadsPerBlock.z);
+
+  transpose_3D_tensor_cuda_kernel<<<number_of_blocks, threadsPerBlock>>>(
+      tensor->data, result_data, batch, rows, cols);
+
+  cudaError_t error = cudaGetLastError();
+  if (error != cudaSuccess) {
+    fprintf(stderr, "CUDA error: %s\n", cudaGetErrorString(error));
+    exit(1);
+  }
+
+  cudaDeviceSynchronize();
+}
+

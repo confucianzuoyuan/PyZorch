@@ -117,7 +117,8 @@ class Tensor:
                 for i in range(tensor.shape[depth]):
                     index[depth] = i
                     result += "["
-                    result += print_recursively(tensor, depth + 1, index) + "],"
+                    result += print_recursively(tensor,
+                                                depth + 1, index) + "],"
                     if i < tensor.shape[depth] - 1:
                         result += "\n" + " " * (depth * 4)
                 return result.strip(",")
@@ -344,3 +345,57 @@ class Tensor:
             result_data.grad_fn = SumBackward(self, axis, keepdim=keepdim)
 
         return result_data
+
+    def transpose(self, axis1, axis2):
+        if axis1 < 0:
+            axis1 = self.ndim + axis1
+        if axis2 < 0:
+            axis2 = self.ndim + axis2
+
+        Tensor._C.transpose_axes_tensor.argtypes = [
+            ctypes.POINTER(CTensor), ctypes.c_int, ctypes.c_int]
+        Tensor._C.transpose_axes_tensor.restype = ctypes.POINTER(CTensor)
+
+        result_tensor_ptr = Tensor._C.transpose_axes_tensor(
+            self.tensor, axis1, axis2)
+
+        result_data = Tensor()
+        result_data.tensor = result_tensor_ptr
+        result_data.shape = self.shape.copy()
+        result_data.shape[axis1] = self.shape[axis2]
+        result_data.shape[axis2] = self.shape[axis1]
+        result_data.ndim = self.ndim
+        result_data.device = self.device
+        result_data.numel = self.numel
+
+        result_data.requires_grad = self.requires_grad
+        if result_data.requires_grad:
+            result_data.grad_fn = TransposeBackward(self, axis1, axis2)
+
+        return result_data
+
+    @property
+    def T(self):
+        Tensor._C.transpose_tensor.argtypes = [ctypes.POINTER(CTensor)]
+        Tensor._C.transpose_tensor.restype = ctypes.POINTER(CTensor)
+
+        result_tensor_ptr = Tensor._C.transpose_tensor(self.tensor)
+
+        result_data = Tensor()
+        result_data.tensor = result_tensor_ptr
+        result_data.shape = self.shape.copy()[::-1]
+        result_data.ndim = self.ndim
+        result_data.device = self.device
+        result_data.numel = self.numel
+
+        result_data.requires_grad = self.requires_grad
+        if result_data.requires_grad:
+            result_data.grad_fn = TBackward(self)
+
+        return result_data
+
+    def detach(self):
+        self.grad = None
+        self.grad_fn = None
+
+        return self

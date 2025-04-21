@@ -419,4 +419,60 @@ Tensor *sum_tensor(Tensor *tensor, int axis, bool keepdim) {
     return create_tensor(result_data, shape, ndim, tensor->device);
   }
 }
+
+Tensor *transpose_tensor(Tensor *tensor) {
+  int ndim = tensor->ndim;
+  int *shape = (int *)malloc(ndim * sizeof(int));
+  if (shape == NULL) {
+    fprintf(stderr, "Memory allocation failed\n");
+    exit(1);
+  }
+
+  for (int i = 0; i < ndim; i++) {
+    shape[i] = tensor->shape[ndim - 1 - i];
+  }
+
+  int size = tensor->size;
+
+  if (strcmp(tensor->device, "cpu") == 0) {
+    float *result_data = (float *)malloc(size * sizeof(float));
+    if (result_data == NULL) {
+      fprintf(stderr, "Memory allocation failed\n");
+      exit(1);
+    }
+    switch (ndim) {
+    case 1:
+      transpose_1D_tensor_cpu(tensor, result_data);
+      break;
+    case 2:
+      transpose_2D_tensor_cpu(tensor, result_data);
+      break;
+    case 3:
+      transpose_3D_tensor_cpu(tensor, result_data);
+      break;
+    default:
+      fprintf(stderr, "Transpose only supports tensors up to 3 dimensions.\n");
+      exit(1);
+    }
+    return create_tensor(result_data, shape, ndim, tensor->device);
+  } else {
+    float *result_data;
+    cudaMalloc((void **)&result_data, size * sizeof(float));
+    switch (ndim) {
+    case 1:
+      transpose_1D_tensor_cuda(tensor, result_data);
+      break;
+    case 2:
+      transpose_2D_tensor_cuda(tensor, result_data);
+      break;
+    case 3:
+      transpose_3D_tensor_cuda(tensor, result_data);
+      break;
+    default:
+      fprintf(stderr, "Transpose only supports tensors up to 3 dimensions.\n");
+      exit(1);
+    }
+    return create_tensor(result_data, shape, ndim, tensor->device);
+  }
+}
 }

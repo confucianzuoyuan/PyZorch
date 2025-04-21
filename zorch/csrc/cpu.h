@@ -35,4 +35,10 @@ void sum_tensor_cpu(Tensor *tensor, float *result_data, int size,
 void make_contiguous_tensor_cpu(Tensor *tensor, float *result_data,
                                 int *new_strides);
 
+void transpose_1D_tensor_cpu(Tensor *tensor, float *result_data);
+
+void transpose_2D_tensor_cpu(Tensor *tensor, float *result_data);
+
+void transpose_3D_tensor_cpu(Tensor *tensor, float *result_data);
+
 #endif
