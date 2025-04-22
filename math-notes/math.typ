@@ -303,6 +303,41 @@ print("重塑后的张量:\n", reshaped_tensor)
 reshaped_tensor = original_tensor.reshape(3, -1)  # 自动计算第二维的大小
 ```
 
+下面来看 `reshape` 运算的反向传播
+
+$
+  Y = X . "reshape"(n, m)
+$
+
+也就是说，$X_(i j) => Y_(i' j')$
+
+假设损失函数是 $L(Y)$
+
+那么根据链式求导法则，有以下：
+
+$
+  (partial L) / (partial X_(d c))
+  =
+  sum_i sum_j
+  (partial L) / (partial Y_(i j))
+  (partial Y_(i j)) / (partial X_(d c))
+  =
+  (partial L) / (partial Y_(d' c'))
+  (partial Y_(d' c')) / (partial X_(d c))
+  =
+  (partial L) / (partial Y_(d' c'))
+$
+
+所以有
+
+$
+  (partial L) / (partial X)
+  =
+  ((partial L) / (partial Y))."reshape"(m, n)
+  =
+  "gradient"."reshape"(m, n)
+$
+
 == 2 广播语义
 
 如果 PyTorch 操作支持广播，则可以自动扩展其张量参数，使其大小相等（而无需复制数据）。
