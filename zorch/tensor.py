@@ -26,9 +26,6 @@ class Tensor:
                 data = [data]
 
             data, shape = self.flatten(data)
-            print("data: ", data)
-            print("shape: ", shape)
-            print("device: ", device)
 
             self.shape = shape.copy()
 
