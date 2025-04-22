@@ -32,7 +32,7 @@ class AddBroadcastedBackward:
 
         return [grad_x, grad_y]
 
-    def _reshape_gradient(self, gradient, shape):
+    def _reshape_gradient(self, gradient: "zorch.Tensor", shape):
         while len(gradient.shape) > len(shape):
             gradient = gradient.sum(axis=0)
 

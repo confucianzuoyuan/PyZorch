@@ -180,6 +180,9 @@ class Tensor:
                 known_dims_product *= dim
 
         # 如果 -1 在 new_shape 中，则计算 inferred dimension
+        # 因为 -1 所在的维度，是需要推断的维度
+        # 例如 [2, 3] reshape to [3, -1]
+        # 需要推断出 -1 这个维度的大小是 2
         if inferred_dim == -1:
             inferred_dim_size = total_elements // known_dims_product
             new_shape = [inferred_dim_size if dim == -
@@ -188,7 +191,7 @@ class Tensor:
         new_shape_ctype = (ctypes.c_int * len(new_shape))(*new_shape)
         new_ndim_ctype = ctypes.c_int(len(new_shape))
 
-        # `Tensor *reshape_tensor(Tensor *tensor, int *new_shape, int new_ndim)``
+        # `Tensor *reshape_tensor(Tensor *tensor, int *new_shape, int new_ndim)`
         Tensor._C.reshape_tensor.argtypes = [ctypes.POINTER(
             CTensor), ctypes.POINTER(ctypes.c_int), ctypes.c_int]
         Tensor._C.reshape_tensor.restype = ctypes.POINTER(CTensor)
@@ -430,3 +433,38 @@ class Tensor:
         self.grad_fn = None
 
         return self
+
+    def backward(self, gradient: Self | None = None):
+        # 如果张量不需要梯度，则不进行反向传播
+        if not self.requires_grad:
+            return
+
+        # 如果不存在要反向传播的梯度
+        # 但是张量是 1x1 的矩阵
+        # 则将 [1] 作为梯度反向传播回去
+        # 这里主要是做错误处理
+        if gradient is None:
+            if self.shape == [1]:
+                gradient = Tensor([1]).to(self.device)
+            else:
+                raise RuntimeError(
+                    "Gradient argument must be specified for non-scalar tensors.")
+
+        stack = [(self, gradient)]
+        # 用来存储已经访问过的张量
+        visited = set()
+
+        while stack:
+            tensor, grad = stack.pop()
+
+            if tensor.grad is None:
+                tensor.grad = grad
+            else:
+                tensor.grad += grad
+
+            if tensor.grad_fn is not None:
+                grads = tensor.grad_fn.backward(grad)
+                for tensor, grad in zip(tensor.grad_fn.input, grads):
+                    if isinstance(tensor, Tensor) and tensor not in visited:
+                        stack.append((tensor, grad))
+                        visited.add(tensor)

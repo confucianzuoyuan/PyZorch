@@ -400,3 +400,33 @@ torch.Size([3, 1, 7])
 RuntimeError: The size of tensor a (2) must match the size of tensor b (3) at non-singleton dimension 1
 ```
 
+接下来我们看一下广播操作的反向传播。
+
+我们先来看一个简单的例子，就是一个标量和一个矩阵的相加，此时，标量会被广播成矩阵的形状。
+
+$
+  Z = x + Y
+$
+
+也就是
+
+$
+  Z_(i j) = x + Y_(i j)
+$
+
+而损失函数是$L(Z)$
+
+所以根据多元函数的求导法则
+
+$
+  (partial L) / (partial x)
+  =
+  sum_i sum_j
+  (partial L) / (partial Z_(i j))
+  (partial Z_(i j)) / (partial x)
+  =
+  sum_i sum_j
+  (partial L) / (partial Z_(i j))
+  =
+  "gradient"."sum"()
+$

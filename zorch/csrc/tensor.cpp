@@ -233,6 +233,7 @@ Tensor *reshape_tensor(Tensor *tensor, int *new_shape, int new_ndim) {
     exit(1);
   }
 
+  // 为了实现的简便，reshape会创建1个新的张量
   if (strcmp(tensor->device, "cpu") == 0) {
     float *result_data = (float *)malloc(tensor->size * sizeof(float));
     if (result_data == NULL) {

@@ -12,3 +12,8 @@ print(input.sum(1))
 a = zorch.Tensor([[1, 2, 3], [4, 5, 6]])
 a.to("cuda")
 print(a.T)
+
+x = zorch.Tensor([1], requires_grad=True)
+y = x + x
+y.backward()
+print('x.grad', x.grad)
