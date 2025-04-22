@@ -1,27 +1,29 @@
+import zorch
+
 class ReshapeBackward:
-    def __init__(self, x):
+    def __init__(self, x: "zorch.Tensor"):
         self.input = [x]
 
     # 将传播过来的梯度 gradient 变形成 输入 的形状
-    def backward(self, gradient):
+    def backward(self, gradient: "zorch.Tensor"):
         return [gradient.reshape(self.input[0].shape)]
 
 
 class AddBackward:
-    def __init__(self, x, y):
+    def __init__(self, x: "zorch.Tensor", y: "zorch.Tensor"):
         self.input = [x, y]
 
     # 加法的反向传播
-    def backward(self, gradient):
+    def backward(self, gradient: "zorch.Tensor"):
         return [gradient, gradient]
 
 
 class AddBroadcastedBackward:
-    def __init__(self, x, y):
+    def __init__(self, x: "zorch.Tensor", y: "zorch.Tensor"):
         self.input = [x, y]
 
     # 带广播的加法的反向传播
-    def backward(self, gradient):
+    def backward(self, gradient: "zorch.Tensor"):
         x, y = self.input
         # 将梯度的形状分别转换成 x 的形状，和 y 的形状
         grad_x = self._reshape_gradient(gradient, x.shape)
@@ -77,8 +79,8 @@ class TransposeBackward:
 
 
 class TBackward:
-    def __init__(self, x):
+    def __init__(self, x: "zorch.Tensor"):
         self.input = [x]
 
-    def backward(self, gradient):
+    def backward(self, gradient: "zorch.Tensor"):
         return [gradient.T]
