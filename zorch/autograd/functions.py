@@ -1,5 +1,6 @@
 import zorch
 
+
 class ReshapeBackward:
     def __init__(self, x: "zorch.Tensor"):
         self.input = [x]
@@ -43,12 +44,12 @@ class AddBroadcastedBackward:
 
 
 class SumBackward:
-    def __init__(self, x, axis=None, keepdim=False):
+    def __init__(self, x: "zorch.Tensor", axis=None, keepdim=False):
         self.input = [x]
         self.axis = axis
         self.keepdim = keepdim
 
-    def backward(self, gradient):
+    def backward(self, gradient: "zorch.Tensor"):
         input_shape = self.input[0].shape.copy()
         if self.axis == -1:
             grad_output = float(
@@ -74,7 +75,7 @@ class TransposeBackward:
         self.axis1 = axis1
         self.axis2 = axis2
 
-    def backward(self, gradient):
+    def backward(self, gradient: "zorch.Tensor"):
         return [gradient.transpose(self.axis2, self.axis1)]
 
 
