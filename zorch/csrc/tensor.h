@@ -83,6 +83,10 @@ void to_device(Tensor *tensor, char *device);
 /* 在 PyTorch 中，`make_contiguous()`
  * 是一个张量操作，用于确保张量在内存中是连续的。 */
 void make_contiguous(Tensor *tensor);
+
+Tensor *transpose_tensor(Tensor *tensor);
+
+Tensor *transpose_axes_tensor(Tensor *tensor, int axis1, int axis2);
 }
 
 #endif
