@@ -68,7 +68,7 @@ class Tensor:
             self.shape = None,
             self.ndim = None,
             self.device = device
-            self.requires_grad = None
+            self.requires_grad = requires_grad
             self.hooks = []
             self.grad = None
             self.grad_fn = None
