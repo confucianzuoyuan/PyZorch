@@ -17,3 +17,12 @@ x = zorch.Tensor([1], requires_grad=True)
 y = x + x
 y.backward()
 print('x.grad', x.grad)
+
+x = zorch.Tensor(1)
+y = zorch.Tensor(2)
+print("x: ", x)
+print("y: ", y)
+print(x.shape)
+print(y.shape)
+print(x.ndim)
+print(y.ndim)

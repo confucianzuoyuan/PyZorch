@@ -21,25 +21,32 @@ class Tensor:
 
     def __init__(self, data=None, device="cpu", requires_grad=False):
         if data != None:
-            print("data: ", data)
             if isinstance(data, (float, int)):
                 data = [data]
+                self.shape = ()
+                self.ndim = len(self.shape)
+                self.device = device
 
-            data, shape = self.flatten(data)
+                self._data_ctype = (ctypes.c_float * len(data))(*data.copy())
+                self._shape_ctype = ctypes.POINTER(ctypes.c_int)()
+                self._ndim_ctype = ctypes.c_int(len(self.shape))
+                self._device_ctype = device.encode('utf-8')
+            else:
+                data, shape = self.flatten(data)
 
-            self.shape = shape.copy()
+                self.shape = shape.copy()
 
-            self._data_ctype = (ctypes.c_float * len(data))(*data.copy())
-            self._shape_ctype = (ctypes.c_int * len(shape))(*shape.copy())
-            self._ndim_ctype = ctypes.c_int(len(shape))
-            self._device_ctype = device.encode('utf-8')
+                self._data_ctype = (ctypes.c_float * len(data))(*data.copy())
+                self._shape_ctype = (ctypes.c_int * len(shape))(*shape.copy())
+                self._ndim_ctype = ctypes.c_int(len(shape))
+                self._device_ctype = device.encode('utf-8')
 
-            self.ndim = len(shape)
-            self.device = device
+                self.ndim = len(self.shape)
+                self.device = device
 
-            self.numel = 1
-            for s in self.shape:
-                self.numel *= s
+                self.numel = 1
+                for s in self.shape:
+                    self.numel *= s
 
             self.requires_grad = requires_grad
             self.hooks = []
@@ -118,6 +125,19 @@ class Tensor:
             Tensor._C.delete_tensor(self.tensor)
 
     def __getitem__(self, indices):
+        if self.ndim == 0:
+            indices = [indices]
+            Tensor._C.get_item.argtypes = [
+                ctypes.POINTER(CTensor),
+                ctypes.POINTER(ctypes.c_int),
+            ]
+            Tensor._C.get_item.restype = ctypes.c_float
+
+            indices = (ctypes.c_int * len(indices))(*indices)
+            value = Tensor._C.get_item(self.tensor, indices)
+
+            return value
+
         if isinstance(indices, int):
             indices = [indices]
         if len(indices) != self.ndim:
@@ -134,6 +154,9 @@ class Tensor:
         return value
 
     def __str__(self):
+        if self.ndim == 0:
+            return str(self[0])
+
         def print_recursively(tensor, depth, index):
             if depth == tensor.ndim - 1:
                 result = ""
