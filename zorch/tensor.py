@@ -157,25 +157,27 @@ class Tensor:
         if self.ndim == 0:
             return str(self[0])
 
-        def print_recursively(tensor, depth, index):
+        def print_recursively(tensor, depth=0, index=None):
+            if index is None:
+                index = [0] * tensor.ndim
+
             if depth == tensor.ndim - 1:
-                result = ""
-                for i in range(tensor.shape[-1]):
-                    index[-1] = i
-                    result += str(tensor[tuple(index)]) + ", "
-                return result.strip()
-            else:
-                result = ""
-                if depth > 0:
-                    result += "\n" + " " * ((depth - 1) * 4)
+                # 最后一维，直接打印元素
+                elems = []
                 for i in range(tensor.shape[depth]):
                     index[depth] = i
-                    result += "["
-                    result += print_recursively(tensor,
-                                                depth + 1, index) + "],"
-                    if i < tensor.shape[depth] - 1:
-                        result += "\n" + " " * (depth * 4)
-                return result.strip(",")
+                    elems.append(str(tensor[tuple(index)]))
+                return "[" + ", ".join(elems) + "]"
+            else:
+                # 非最后一维，递归打印子数组
+                elems = []
+                for i in range(tensor.shape[depth]):
+                    index[depth] = i
+                    sub_str = print_recursively(tensor, depth + 1, index)
+                    elems.append(sub_str)
+                indent = " " * (depth * 4)
+                joined = (",\n" + indent).join(elems)
+                return "[\n" + indent + joined + "\n" + (" " * ((depth - 1) * 4 if depth > 0 else 0)) + "]"
 
         index = [0] * self.ndim
         result = "tensor(["
