@@ -672,4 +672,32 @@ Tensor *log_tensor(Tensor *tensor) {
     return create_tensor(result_data, shape, ndim, tensor->device);
   }
 }
+
+Tensor *exp_tensor(Tensor *tensor) {
+  int ndim = tensor->ndim;
+  int *shape = (int *)malloc(ndim * sizeof(int));
+  if (shape == NULL) {
+    fprintf(stderr, "Memory allocation failed\n");
+    exit(1);
+  }
+
+  for (int i = 0; i < ndim; i++) {
+    shape[i] = tensor->shape[i];
+  }
+
+  if (strcmp(tensor->device, "cpu") == 0) {
+    float *result_data = (float *)malloc(tensor->size * sizeof(float));
+    if (result_data == NULL) {
+      fprintf(stderr, "Memory allocation failed\n");
+      exit(1);
+    }
+    exp_tensor_cpu(tensor, result_data);
+    return create_tensor(result_data, shape, ndim, tensor->device);
+  } else {
+    float *result_data;
+    cudaMalloc((void **)&result_data, tensor->size * sizeof(float));
+    exp_tensor_cuda(tensor, result_data);
+    return create_tensor(result_data, shape, ndim, tensor->device);
+  }
+}
 }

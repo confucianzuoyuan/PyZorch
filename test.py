@@ -36,3 +36,5 @@ z = x.cos()
 print(z)
 z = x.sin()
 print(z)
+
+print(x.exp())
