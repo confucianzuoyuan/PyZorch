@@ -34,3 +34,5 @@ y = x ** 2
 print(y)
 z = x.cos()
 print(z)
+z = x.sin()
+print(z)

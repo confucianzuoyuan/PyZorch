@@ -513,7 +513,6 @@ __host__ void tensor_pow_scalar_cuda(Tensor *tensor, float exponent,
 
 __global__ void cos_tensor_cuda_kernel(float *data, float *result_data,
                                        int size) {
-
   int i = blockIdx.x * blockDim.x + threadIdx.x;
   if (i < size) {
     result_data[i] = cosf(data[i]);
@@ -521,10 +520,32 @@ __global__ void cos_tensor_cuda_kernel(float *data, float *result_data,
 }
 
 __host__ void cos_tensor_cuda(Tensor *tensor, float *result_data) {
-
   int number_of_blocks =
       (tensor->size + THREADS_PER_BLOCK - 1) / THREADS_PER_BLOCK;
   cos_tensor_cuda_kernel<<<number_of_blocks, THREADS_PER_BLOCK>>>(
+      tensor->data, result_data, tensor->size);
+
+  cudaError_t error = cudaGetLastError();
+  if (error != cudaSuccess) {
+    fprintf(stderr, "CUDA error: %s\n", cudaGetErrorString(error));
+    exit(1);
+  }
+
+  cudaDeviceSynchronize();
+}
+
+__global__ void sin_tensor_cuda_kernel(float *data, float *result_data,
+                                       int size) {
+  int i = blockIdx.x * blockDim.x + threadIdx.x;
+  if (i < size) {
+    result_data[i] = sinf(data[i]);
+  }
+}
+
+__host__ void sin_tensor_cuda(Tensor *tensor, float *result_data) {
+  int number_of_blocks =
+      (tensor->size + THREADS_PER_BLOCK - 1) / THREADS_PER_BLOCK;
+  sin_tensor_cuda_kernel<<<number_of_blocks, THREADS_PER_BLOCK>>>(
       tensor->data, result_data, tensor->size);
 
   cudaError_t error = cudaGetLastError();
