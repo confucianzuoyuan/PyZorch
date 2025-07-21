@@ -98,6 +98,21 @@ class SigmoidBackward:
         return [grad_input]
 
 
+class Function:
+    def __call__(self, input: "zorch.Tensor"):
+        x = input
+        y = self.forward(x)
+        output = y
+        self.input = input  # 保存输入的变量
+        return output
+
+    def forward(self, x):
+        raise NotImplementedError()
+
+    def backward(self, gy):
+        raise NotImplementedError()
+
+
 class LogBackward:
     def __init__(self, x: "zorch.Tensor"):
         self.input = [x]
@@ -105,3 +120,25 @@ class LogBackward:
     def backward(self, gradient: "zorch.Tensor"):
         grad_input = gradient / self.input[0]
         return [grad_input]
+
+
+class Square(Function):
+    def forward(self, x: "zorch.Tensor"):
+        y = x ** 2
+        return y
+
+    def backward(self, gy):
+        x = self.input
+        gx = 2 * x * gy
+        return gx
+
+
+class Exp(Function):
+    def forward(self, x: "zorch.Tensor"):
+        y = x.exp()
+        return y
+
+    def backward(self, gy):
+        x = self.input
+        gx = x.exp() * gy
+        return gx
