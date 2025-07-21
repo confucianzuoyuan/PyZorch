@@ -32,3 +32,5 @@ print(y.ndim)
 x = zorch.Tensor([1])
 y = x ** 2
 print(y)
+z = x.cos()
+print(z)

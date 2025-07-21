@@ -41,5 +41,5 @@ void transpose_2D_tensor_cpu(Tensor *tensor, float *result_data);
 
 void transpose_3D_tensor_cpu(Tensor *tensor, float *result_data);
 void tensor_pow_scalar_cpu(Tensor *tensor, float exponent, float *result_data);
-
+void cos_tensor_cpu(Tensor *tensor, float *result_data);
 #endif
