@@ -102,6 +102,6 @@ class LogBackward:
     def __init__(self, x: "zorch.Tensor"):
         self.input = [x]
 
-    def backward(self, gradient):
+    def backward(self, gradient: "zorch.Tensor"):
         grad_input = gradient / self.input[0]
         return [grad_input]
