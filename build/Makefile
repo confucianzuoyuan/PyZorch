@@ -4,9 +4,9 @@ NVCC = nvcc
 MPI_CC = mpicc
 
 # 编译器 flags
-CFLAGS = -Wall -Wextra -std=c++11
-NVCCFLAGS = -std=c++11
-MPICC_FLAGS = -Wall -Wextra -std=c++11
+CFLAGS = -Wall -Wextra -std=c++14
+NVCCFLAGS = -std=c++14
+MPICC_FLAGS = -Wall -Wextra -std=c++14
 
 # CUDA flags 和 libraries
 CUDAFLAGS = -arch=sm_75
