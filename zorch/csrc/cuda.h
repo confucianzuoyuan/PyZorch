@@ -49,5 +49,8 @@ __host__ void transpose_2D_tensor_cuda(Tensor *tensor, float *result_data);
 __global__ void transpose_3D_tensor_cuda_kernel(float *data, float *result_data,
                                                 int batch, int rows, int cols);
 __host__ void transpose_3D_tensor_cuda(Tensor *tensor, float *result_data);
-
+__global__ void tensor_pow_scalar_cuda_kernel(float *data, float exponent,
+                                              float *result_data, int size);
+__host__ void tensor_pow_scalar_cuda(Tensor *tensor, float exponent,
+                                     float *result_data);
 #endif

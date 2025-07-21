@@ -345,6 +345,26 @@ class Tensor:
 
         return result_data
 
+    def __pow__(self, other):
+        other = float(other)
+        Tensor._C.tensor_pow_scalar.argtypes = [
+            ctypes.POINTER(CTensor), ctypes.c_float]
+        Tensor._C.tensor_pow_scalar.restype = ctypes.POINTER(CTensor)
+
+        result_tensor_ptr = Tensor._C.tensor_pow_scalar(
+            self.tensor, ctypes.c_float(other))
+
+        resutl_data = Tensor()
+        resutl_data.tensor = result_tensor_ptr
+        resutl_data.shape = self.shape.copy()
+        resutl_data.ndim = self.ndim
+        resutl_data.device = self.device
+        resutl_data.numel = self.numel
+
+        resutl_data.requires_grad = self.requires_grad
+
+        return resutl_data
+
     def to(self, device):
         device = str(device)
 

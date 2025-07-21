@@ -28,3 +28,7 @@ print(x.shape)
 print(y.shape)
 print(x.ndim)
 print(y.ndim)
+
+x = zorch.Tensor([1])
+y = x ** 2
+print(y)

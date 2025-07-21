@@ -242,3 +242,9 @@ void transpose_3D_tensor_cpu(Tensor *tensor, float *result_data) {
     }
   }
 }
+
+void tensor_pow_scalar_cpu(Tensor *tensor, float exponent, float *result_data) {
+  for (int i = 0; i < tensor->size; i++) {
+    result_data[i] = powf(tensor->data[i], exponent);
+  }
+}

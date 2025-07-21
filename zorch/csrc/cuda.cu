@@ -487,3 +487,26 @@ __host__ void transpose_3D_tensor_cuda(Tensor *tensor, float *result_data) {
   cudaDeviceSynchronize();
 }
 
+__global__ void tensor_pow_scalar_cuda_kernel(float *data, float exponent,
+                                              float *result_data, int size) {
+  int i = blockIdx.x * blockDim.x + threadIdx.x;
+  if (i < size) {
+    result_data[i] = powf(data[i], exponent);
+  }
+}
+
+__host__ void tensor_pow_scalar_cuda(Tensor *tensor, float exponent,
+                                     float *result_data) {
+  int number_of_blocks =
+      (tensor->size + THREADS_PER_BLOCK - 1) / THREADS_PER_BLOCK;
+  tensor_pow_scalar_cuda_kernel<<<number_of_blocks, THREADS_PER_BLOCK>>>(
+      tensor->data, exponent, result_data, tensor->size);
+
+  cudaError_t error = cudaGetLastError();
+  if (error != cudaSuccess) {
+    fprintf(stderr, "CUDA error: %s\n", cudaGetErrorString(error));
+    exit(1);
+  }
+
+  cudaDeviceSynchronize();
+}
