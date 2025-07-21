@@ -44,5 +44,5 @@ void tensor_pow_scalar_cpu(Tensor *tensor, float exponent, float *result_data);
 void cos_tensor_cpu(Tensor *tensor, float *result_data);
 void sin_tensor_cpu(Tensor *tensor, float *result_data);
 void sigmoid_tensor_cpu(Tensor *tensor, float *result_data);
-
+void log_tensor_cpu(Tensor *tensor, float *result_data);
 #endif

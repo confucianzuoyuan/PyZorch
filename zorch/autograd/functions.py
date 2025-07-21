@@ -96,3 +96,12 @@ class SigmoidBackward:
         grad_input = gradient * sigmoid_x * (1 - sigmoid_x)
 
         return [grad_input]
+
+
+class LogBackward:
+    def __init__(self, x: "zorch.Tensor"):
+        self.input = [x]
+
+    def backward(self, gradient):
+        grad_input = gradient / self.input[0]
+        return [grad_input]
