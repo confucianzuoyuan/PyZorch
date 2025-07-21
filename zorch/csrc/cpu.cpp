@@ -260,3 +260,16 @@ void cos_tensor_cpu(Tensor *tensor, float *result_data) {
     result_data[i] = cosf(tensor->data[i]);
   }
 }
+
+// 防止溢出，保证数值稳定性
+void sigmoid_tensor_cpu(Tensor *tensor, float *result_data) {
+  for (int i = 0; i < tensor->size; i++) {
+    if (tensor->data[i] >= 0) {
+      float z = expf(-tensor->data[i]);
+      result_data[i] = 1 / (1 + z);
+    } else {
+      float z = expf(tensor->data[i]);
+      result_data[i] = z / (1 + z);
+    }
+  }
+}

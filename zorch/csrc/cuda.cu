@@ -556,3 +556,34 @@ __host__ void sin_tensor_cuda(Tensor *tensor, float *result_data) {
 
   cudaDeviceSynchronize();
 }
+
+// 防止溢出，保证数值稳定性
+__global__ void sigmoid_tensor_cuda_kernel(float *data, float *result_data,
+                                           int size) {
+  int i = blockIdx.x * blockDim.x + threadIdx.x;
+
+  if (i < size) {
+    if (data[i] >= 0) {
+      float z = expf(-data[i]);
+      result_data[i] = 1 / (1 + z);
+    } else {
+      float z = expf(data[i]);
+      result_data[i] = z / (1 + z);
+    }
+  }
+}
+
+__host__ void sigmoid_tensor_cuda(Tensor *tensor, float *result_data) {
+  int number_of_blocks =
+      (tensor->size + THREADS_PER_BLOCK - 1) / THREADS_PER_BLOCK;
+  sigmoid_tensor_cuda_kernel<<<number_of_blocks, THREADS_PER_BLOCK>>>(
+      tensor->data, result_data, tensor->size);
+
+  cudaError_t error = cudaGetLastError();
+  if (error != cudaSuccess) {
+    fprintf(stderr, "CUDA error: %s\n", cudaGetErrorString(error));
+    exit(1);
+  }
+
+  cudaDeviceSynchronize();
+}

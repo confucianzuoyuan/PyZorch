@@ -85,3 +85,14 @@ class TBackward:
 
     def backward(self, gradient: "zorch.Tensor"):
         return [gradient.T]
+
+
+class SigmoidBackward:
+    def __init__(self, input: "zorch.Tensor"):
+        self.input = [input]
+
+    def backward(self, gradient: "zorch.Tensor"):
+        sigmoid_x = self.input[0].sigmoid()
+        grad_input = gradient * sigmoid_x * (1 - sigmoid_x)
+
+        return [grad_input]
