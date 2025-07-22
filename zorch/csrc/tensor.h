@@ -87,6 +87,7 @@ void make_contiguous(Tensor *tensor);
 Tensor *transpose_tensor(Tensor *tensor);
 
 Tensor *transpose_axes_tensor(Tensor *tensor, int axis1, int axis2);
+Tensor *exp_tensor(Tensor *tensor);
 }
 
 #endif

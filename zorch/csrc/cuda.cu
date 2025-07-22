@@ -633,3 +633,27 @@ __host__ void exp_tensor_cuda(Tensor *tensor, float *result_data) {
 
   cudaDeviceSynchronize();
 }
+
+__global__ void scalar_mul_tensor_cuda_kernel(float *data, float scalar,
+                                              float *result_data, int size) {
+  int i = blockIdx.x * blockDim.x + threadIdx.x;
+  if (i < size) {
+    result_data[i] = scalar * data[i];
+  }
+}
+
+__host__ void scalar_mul_tensor_cuda(Tensor *tensor, float scalar,
+                                     float *result_data) {
+  int number_of_blocks =
+      (tensor->size + THREADS_PER_BLOCK - 1) / THREADS_PER_BLOCK;
+  scalar_mul_tensor_cuda_kernel<<<number_of_blocks, THREADS_PER_BLOCK>>>(
+      tensor->data, scalar, result_data, tensor->size);
+
+  cudaError_t error = cudaGetLastError();
+  if (error != cudaSuccess) {
+    fprintf(stderr, "CUDA error: %s\n", cudaGetErrorString(error));
+    exit(1);
+  }
+
+  cudaDeviceSynchronize();
+}

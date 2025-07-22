@@ -418,6 +418,26 @@ class Tensor:
 
         return result_data
 
+    def __rmul__(self, other):
+        other = float(other)
+        Tensor._C.scalar_mul_tensor.argtypes = [
+            ctypes.POINTER(CTensor), ctypes.c_float]
+        Tensor._C.scalar_mul_tensor.restype = ctypes.POINTER(CTensor)
+
+        result_tensor_ptr = Tensor._C.scalar_mul_tensor(
+            self.tensor, ctypes.c_float(other))
+
+        resutl_data = Tensor()
+        resutl_data.tensor = result_tensor_ptr
+        resutl_data.shape = self.shape.copy()
+        resutl_data.ndim = self.ndim
+        resutl_data.device = self.device
+        resutl_data.numel = self.numel
+
+        resutl_data.requires_grad = self.requires_grad
+
+        return resutl_data
+
     def exp(self):
         Tensor._C.exp_tensor.argtypes = [ctypes.POINTER(CTensor)]
         Tensor._C.exp_tensor.restype = ctypes.POINTER(CTensor)

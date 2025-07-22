@@ -285,3 +285,9 @@ void sigmoid_tensor_cpu(Tensor *tensor, float *result_data) {
     }
   }
 }
+
+void scalar_mul_tensor_cpu(Tensor *tensor, float scalar, float *result_data) {
+  for (int i = 0; i < tensor->size; i++) {
+    result_data[i] = scalar * tensor->data[i];
+  }
+}
