@@ -160,7 +160,7 @@ class Tensor:
 
     def __str__(self):
         if self.ndim == 0:
-            return str(self[0])
+            return "tensor(" + str(self[0]) + ")"
 
         def print_recursively(tensor, depth=0, index=None):
             if index is None:
@@ -187,7 +187,7 @@ class Tensor:
         index = [0] * self.ndim
         result = "tensor(["
         result += print_recursively(self, 0, index)
-        result += f"""], device="{self.device}", requires_grad={self.requires_grad})"""
+        result += "])"
         return result
 
     def __repr__(self):
