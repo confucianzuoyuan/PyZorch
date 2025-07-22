@@ -132,7 +132,7 @@ class Square(Function):
         return y
 
     def backward(self, gy) -> "zorch.Tensor":
-        x = self.input
+        x = self.inputs[0]
         gx = 2 * x * gy
         return gx
 
@@ -160,6 +160,9 @@ class Add(Function):
     def forward(self, x0, x1):
         y = x0 + x1
         return y
+
+    def backward(self, gy):
+        return gy, gy
 
 
 def add(x0, x1):
