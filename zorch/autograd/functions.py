@@ -1,5 +1,20 @@
 import zorch
 import weakref
+import contextlib
+
+
+@contextlib.contextmanager
+def using_config(name, value):
+    old_value = getattr(Config, name)
+    setattr(Config, name, value)
+    try:
+        yield
+    finally:
+        setattr(Config, name, old_value)
+
+
+def no_grad():
+    return using_config('enable_backprop', False)
 
 
 class ReshapeBackward:
@@ -106,10 +121,11 @@ class Function:
         if not isinstance(outputs, tuple):
             outputs = (outputs,)
 
-        # 函数的辈分和输出中辈分最大的相同
-        self.generation = max([x.generation for x in inputs])
-        for output in outputs:
-            output.set_creator(self)  # 让输出变量保存创造者信息
+        if Config.enable_backprop:
+            # 函数的辈分和输出中辈分最大的相同
+            self.generation = max([x.generation for x in inputs])
+            for output in outputs:
+                output.set_creator(self)  # 让输出变量保存创造者信息
         self.inputs = inputs  # 保存输入的变量
         self.outputs = [weakref.ref(o) for o in outputs]  # 也保存输出变量
         return outputs if len(outputs) > 1 else outputs[0]
@@ -171,3 +187,8 @@ class Add(Function):
 
 def add(x0, x1):
     return Add()(x0, x1)
+
+
+class Config:
+    # 是否启用反向传播
+    enable_backprop = True

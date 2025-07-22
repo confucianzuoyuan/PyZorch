@@ -1,5 +1,5 @@
 import zorch
-from zorch.autograd.functions import Add, Exp, Square, add, exp, square
+from zorch.autograd.functions import Add, Exp, Square, add, exp, no_grad, square
 
 input = zorch.Tensor(
     [[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12], [13, 14, 15]]).to("cuda")
@@ -77,3 +77,7 @@ y.backward()
 
 print(y.grad, t.grad)
 print(x0.grad, x1.grad)
+
+with no_grad():
+    x = zorch.Tensor(2.0)
+    y = square(x)
