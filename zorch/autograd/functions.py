@@ -104,6 +104,9 @@ class Function:
         outputs = self.forward(*inputs)
         if not isinstance(outputs, tuple):
             outputs = (outputs,)
+
+        # 函数的辈分和输出中辈分最大的相同
+        self.generation = max([x.generation for x in inputs])
         for output in outputs:
             output.set_creator(self)  # 让输出变量保存创造者信息
         self.inputs = inputs  # 保存输入的变量

@@ -60,3 +60,11 @@ x.cleargrad()
 y = add(add(x, x), x)
 y. backward()
 print(x.grad)  # 3.0
+
+x = zorch.Tensor(2.0)
+a = square(x)
+y = add(square(a), square(a))
+y.backward()
+
+print(y)
+print(x.grad)

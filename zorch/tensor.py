@@ -21,12 +21,15 @@ class Tensor:
 
     def set_creator(self, func):
         self.creator = func
+        self.generation = func.generation + 1
 
     def cleargrad(self):
         self.grad = None
 
     def __init__(self, data=None, device="cpu", requires_grad=False):
         self.creator = None
+        # 张量的“辈分”，用来计算张量组成的有向无环图。
+        self.generation = 0
         if data != None:
             if isinstance(data, (float, int)):
                 data = [data]
@@ -671,7 +674,17 @@ class Tensor:
         if self.grad is None:
             self.grad = self.ones_like()
 
-        funcs = [self.creator]
+        funcs = []
+        seen_set = set()
+
+        # 对算子进行排序，这样pop出来的算子的辈分肯定是最大的。
+        def add_func(f):
+            if f not in seen_set:
+                funcs.append(f)
+                seen_set.add(f)
+                funcs.sort(key=lambda x: x.generation)
+        add_func(self.creator)
+
         while funcs:
             f = funcs.pop()
             gys = [output.grad for output in f.outputs]
@@ -686,4 +699,4 @@ class Tensor:
                     x.grad = x.grad + gx
 
                 if x.creator is not None:
-                    funcs.append(x.creator)
+                    add_func(x.creator)
