@@ -22,6 +22,9 @@ class Tensor:
     def set_creator(self, func):
         self.creator = func
 
+    def cleargrad(self):
+        self.grad = None
+
     def __init__(self, data=None, device="cpu", requires_grad=False):
         self.creator = None
         if data != None:
