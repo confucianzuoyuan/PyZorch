@@ -99,19 +99,21 @@ class SigmoidBackward:
 
 
 class Function:
-    def __call__(self, input: "zorch.Tensor") -> "zorch.Tensor":
-        x = input
-        y = self.forward(x)
-        output = y
-        output.set_creator(self)  # 让输出变量保存创造者信息
-        self.input = input  # 保存输入的变量
-        self.output = output  # 也保存输出变量
-        return output
+    def __call__(self, *inputs):
+        inputs = [i for i in inputs]
+        outputs = self.forward(*inputs)
+        if not isinstance(outputs, tuple):
+            outputs = (outputs,)
+        for output in outputs:
+            output.set_creator(self)  # 让输出变量保存创造者信息
+        self.inputs = inputs  # 保存输入的变量
+        self.outputs = outputs  # 也保存输出变量
+        return outputs if len(outputs) > 1 else outputs[0]
 
-    def forward(self, x):
+    def forward(self, xs):
         raise NotImplementedError()
 
-    def backward(self, gy):
+    def backward(self, gys):
         raise NotImplementedError()
 
 
@@ -152,3 +154,13 @@ def square(x):
 
 def exp(x):
     return Exp()(x)
+
+
+class Add(Function):
+    def forward(self, x0, x1):
+        y = x0 + x1
+        return y
+
+
+def add(x0, x1):
+    return Add()(x0, x1)
