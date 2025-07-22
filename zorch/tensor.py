@@ -670,7 +670,7 @@ class Tensor:
 
         return self
 
-    def backward(self):
+    def backward(self, retain_grad=False):
         if self.grad is None:
             self.grad = self.ones_like()
 
@@ -700,3 +700,9 @@ class Tensor:
 
                 if x.creator is not None:
                     add_func(x.creator)
+
+            # 只有终端的变量需要保留梯度，其他中间张量的梯度无需保留
+            # 设置 y().grad = None之后，引用计数将变为 0 ，导数的数据会从内存中被删除 。
+            if not retain_grad:
+                for y in f.outputs:
+                    y().grad = None  # y是weakref,需要加()

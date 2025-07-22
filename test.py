@@ -68,3 +68,12 @@ y.backward()
 
 print(y)
 print(x.grad)
+
+x0 = zorch.Tensor(1.0)
+x1 = zorch.Tensor(1.0)
+t = add(x0, x1)
+y = add(x0, t)
+y.backward()
+
+print(y.grad, t.grad)
+print(x0.grad, x1.grad)
