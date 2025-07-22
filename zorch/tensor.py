@@ -19,7 +19,11 @@ class Tensor:
     module_dir = os.path.dirname(os.path.abspath(__file__))
     _C = ctypes.CDLL(os.path.join(module_dir, "libtensor.so"))
 
+    def set_creator(self, func):
+        self.creator = func
+
     def __init__(self, data=None, device="cpu", requires_grad=False):
+        self.creator = None
         if data != None:
             if isinstance(data, (float, int)):
                 data = [data]
@@ -638,37 +642,12 @@ class Tensor:
 
         return self
 
-    def backward(self, gradient: Self | None = None):
-        # 如果张量不需要梯度，则不进行反向传播
-        if not self.requires_grad:
-            return
+    def backward(self):
+        funcs = [self.creator]
+        while funcs:
+            f = funcs.pop()
+            x, y = f.input, f.output
+            x.grad = f.backward(y.grad)
 
-        # 如果不存在要反向传播的梯度
-        # 但是张量是 1x1 的矩阵
-        # 则将 [1] 作为梯度反向传播回去
-        # 这里主要是做错误处理
-        if gradient is None:
-            if self.shape == [1]:
-                gradient = Tensor([1]).to(self.device)
-            else:
-                raise RuntimeError(
-                    "Gradient argument must be specified for non-scalar tensors.")
-
-        stack = [(self, gradient)]
-        # 用来存储已经访问过的张量
-        visited = set()
-
-        while stack:
-            tensor, grad = stack.pop()
-
-            if tensor.grad is None:
-                tensor.grad = grad
-            else:
-                tensor.grad += grad
-
-            if tensor.grad_fn is not None:
-                grads = tensor.grad_fn.backward(grad)
-                for tensor, grad in zip(tensor.grad_fn.input, grads):
-                    if isinstance(tensor, Tensor) and tensor not in visited:
-                        stack.append((tensor, grad))
-                        visited.add(tensor)
+            if x.creator is not None:
+                funcs.append(x.creator)

@@ -102,8 +102,10 @@ class Function:
     def __call__(self, input: "zorch.Tensor"):
         x = input
         y = self.forward(x)
-        output = y
+        output: "zorch.Tensor" = y
+        output.set_creator(self)  # 让输出变量保存创造者信息
         self.input = input  # 保存输入的变量
+        self.output = output  # 也保存输出变量
         return output
 
     def forward(self, x):
