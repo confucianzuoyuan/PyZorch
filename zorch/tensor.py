@@ -26,10 +26,11 @@ class Tensor:
     def cleargrad(self):
         self.grad = None
 
-    def __init__(self, data=None, device="cpu", requires_grad=False):
+    def __init__(self, data=None, device="cpu", requires_grad=False, name=None):
         self.creator = None
         # 张量的“辈分”，用来计算张量组成的有向无环图。
         self.generation = 0
+        self.name = name
         if data != None:
             if isinstance(data, (float, int)):
                 data = [data]
@@ -83,6 +84,11 @@ class Tensor:
             self.hooks = []
             self.grad = None
             self.grad_fn = None
+
+    def __len__(self):
+        if len(self.shape) == 0:
+            return 1
+        return self.shape[0]
 
     def flatten(self, nested_list):
         def flatten_recursively(nested_list):

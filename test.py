@@ -81,3 +81,7 @@ print(x0.grad, x1.grad)
 with no_grad():
     x = zorch.Tensor(2.0)
     y = square(x)
+    
+x = zorch.Tensor([[1,2,3],[4,5,6]])
+print(x.shape)
+print(len(x))
