@@ -1,4 +1,5 @@
 import zorch
+import weakref
 
 
 class ReshapeBackward:
@@ -110,7 +111,7 @@ class Function:
         for output in outputs:
             output.set_creator(self)  # 让输出变量保存创造者信息
         self.inputs = inputs  # 保存输入的变量
-        self.outputs = outputs  # 也保存输出变量
+        self.outputs = [weakref.ref(o) for o in outputs]  # 也保存输出变量
         return outputs if len(outputs) > 1 else outputs[0]
 
     def forward(self, xs):
