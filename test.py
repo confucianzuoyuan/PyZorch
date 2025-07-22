@@ -20,13 +20,13 @@ A = Square()
 B = Exp()
 C = Square()
 
-x = zorch.Tensor([0.5])
+x = zorch.Tensor(0.5)
 a = A(x)
 b = B(a)
 y = C(b)
 
 print("y.creator: ", y)
 
-y.grad = zorch.Tensor([1.0])
+y.grad = zorch.Tensor(1.0)
 y.backward()
 print(x.grad)

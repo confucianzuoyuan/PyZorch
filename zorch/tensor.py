@@ -27,9 +27,10 @@ class Tensor:
         if data != None:
             if isinstance(data, (float, int)):
                 data = [data]
-                self.shape = ()
+                self.shape = []
                 self.ndim = len(self.shape)
                 self.device = device
+                self.numel = 1
 
                 self._data_ctype = (ctypes.c_float * len(data))(*data.copy())
                 self._shape_ctype = ctypes.POINTER(ctypes.c_int)()
@@ -590,6 +591,27 @@ class Tensor:
 
     def __mul__(self, other):
         if isinstance(other, (int, float)):
+            result_data = Tensor()
+            result_data.shape = self.shape.copy()
+            result_data.ndim = self.ndim
+            result_data.device = self.device
+            result_data.numel = self.numel
+
+            Tensor._C.scalar_mul_tensor.argtypes = [
+                ctypes.POINTER(CTensor), ctypes.c_float]
+            Tensor._C.scalar_mul_tensor.restype = ctypes.POINTER(CTensor)
+
+            result_data.tensor = Tensor._C.scalar_mul_tensor(
+                self.tensor, ctypes.c_float(other))
+
+            result_data.requires_grad = self.requires_grad
+            if result_data.requires_grad:
+                result_data.grad_fn = ScalarMulBackward(self, other)
+
+            return result_data
+        # 处理标量
+        elif isinstance(other, Tensor) and len(other.shape) == 0:
+            other = other[0]
             result_data = Tensor()
             result_data.shape = self.shape.copy()
             result_data.ndim = self.ndim

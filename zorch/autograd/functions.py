@@ -99,10 +99,10 @@ class SigmoidBackward:
 
 
 class Function:
-    def __call__(self, input: "zorch.Tensor"):
+    def __call__(self, input: "zorch.Tensor") -> "zorch.Tensor":
         x = input
         y = self.forward(x)
-        output: "zorch.Tensor" = y
+        output = y
         output.set_creator(self)  # 让输出变量保存创造者信息
         self.input = input  # 保存输入的变量
         self.output = output  # 也保存输出变量
@@ -125,22 +125,22 @@ class LogBackward:
 
 
 class Square(Function):
-    def forward(self, x: "zorch.Tensor"):
+    def forward(self, x: "zorch.Tensor") -> "zorch.Tensor":
         y = x ** 2
         return y
 
-    def backward(self, gy):
+    def backward(self, gy) -> "zorch.Tensor":
         x = self.input
         gx = 2 * x * gy
         return gx
 
 
 class Exp(Function):
-    def forward(self, x: "zorch.Tensor"):
+    def forward(self, x: "zorch.Tensor") -> "zorch.Tensor":
         y = x.exp()
         return y
 
-    def backward(self, gy):
+    def backward(self, gy) -> "zorch.Tensor":
         x = self.input
         gx = x.exp() * gy
         return gx
