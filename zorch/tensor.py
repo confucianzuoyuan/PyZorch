@@ -665,6 +665,9 @@ class Tensor:
         return self
 
     def backward(self):
+        if self.grad is None:
+            self.grad = self.ones_like()
+
         funcs = [self.creator]
         while funcs:
             f = funcs.pop()

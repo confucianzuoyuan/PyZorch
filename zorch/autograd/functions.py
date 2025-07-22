@@ -144,3 +144,11 @@ class Exp(Function):
         x = self.input
         gx = x.exp() * gy
         return gx
+
+
+def square(x):
+    return Square()(x)
+
+
+def exp(x):
+    return Exp()(x)
