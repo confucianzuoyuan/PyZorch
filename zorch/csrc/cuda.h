@@ -78,4 +78,10 @@ __global__ void scalar_mul_tensor_cuda_kernel(float *data, float scalar,
                                               float *result_data, int size);
 __host__ void scalar_mul_tensor_cuda(Tensor *tensor, float scalar,
                                      float *result_data);
+
+__global__ void elementwise_mul_tensor_cuda_kernel(float *data1, float *data2,
+                                                   float *result_data,
+                                                   int size);
+__host__ void elementwise_mul_tensor_cuda(Tensor *tensor1, Tensor *tensor2,
+                                          float *result_data);
 #endif

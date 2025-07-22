@@ -47,4 +47,6 @@ void sigmoid_tensor_cpu(Tensor *tensor, float *result_data);
 void log_tensor_cpu(Tensor *tensor, float *result_data);
 void exp_tensor_cpu(Tensor *tensor, float *result_data);
 void scalar_mul_tensor_cpu(Tensor *tensor, float scalar, float *result_data);
+void elementwise_mul_tensor_cpu(Tensor* tensor1, Tensor* tensor2, float* result_data);
+
 #endif

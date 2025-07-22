@@ -584,6 +584,54 @@ class Tensor:
 
         return result_data
 
+    def __mul__(self, other):
+        if isinstance(other, (int, float)):
+            result_data = Tensor()
+            result_data.shape = self.shape.copy()
+            result_data.ndim = self.ndim
+            result_data.device = self.device
+            result_data.numel = self.numel
+
+            Tensor._C.scalar_mul_tensor.argtypes = [
+                ctypes.POINTER(CTensor), ctypes.c_float]
+            Tensor._C.scalar_mul_tensor.restype = ctypes.POINTER(CTensor)
+
+            result_data.tensor = Tensor._C.scalar_mul_tensor(
+                self.tensor, ctypes.c_float(other))
+
+            result_data.requires_grad = self.requires_grad
+            if result_data.requires_grad:
+                result_data.grad_fn = ScalarMulBackward(self, other)
+
+            return result_data
+        elif isinstance(other, Tensor):
+            if self.shape != other.shape:
+                raise ValueError(
+                    "Tensors must have the same shape for element-wise multiplication")
+
+            Tensor._C.elementwise_mul_tensor.argtypes = [
+                ctypes.POINTER(CTensor), ctypes.POINTER(CTensor)]
+            Tensor._C.elementwise_mul_tensor.restype = ctypes.POINTER(CTensor)
+
+            result_tensor_ptr = Tensor._C.elementwise_mul_tensor(
+                self.tensor, other.tensor)
+
+            result_data = Tensor()
+            result_data.tensor = result_tensor_ptr
+            result_data.shape = self.shape.copy()
+            result_data.ndim = self.ndim
+            result_data.device = self.device
+            result_data.numel = self.numel
+
+            result_data.requires_grad = self.requires_grad or other.requires_grad
+            if result_data.requires_grad:
+                result_data.grad_fn = ElementwiseMulBackward(self, other)
+
+            return result_data
+        else:
+            raise TypeError(
+                "Unsupported operand type(s) for *: '{}' and '{}'".format(type(self), type(other)))
+
     def detach(self):
         self.grad = None
         self.grad_fn = None
