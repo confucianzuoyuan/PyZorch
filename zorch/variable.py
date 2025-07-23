@@ -102,4 +102,4 @@ Variable.__sub__ = zorch.sub
 Variable.__rsub__ = zorch.rsub
 Variable.__truediv__ = zorch.div
 Variable.__rtruediv__ = zorch.rdiv
-Variable.__pow__ = pow
+Variable.__pow__ = zorch.pow

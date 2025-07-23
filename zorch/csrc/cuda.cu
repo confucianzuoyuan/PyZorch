@@ -81,6 +81,30 @@ __host__ void add_tensor_cuda(Tensor *tensor1, Tensor *tensor2,
   cudaDeviceSynchronize();
 }
 
+__global__ void sub_tensor_cuda_kernel(float *data1, float *data2,
+                                       float *result_data, int size) {
+  int i = blockIdx.x * blockDim.x + threadIdx.x;
+  if (i < size) {
+    result_data[i] = data1[i] + data2[i];
+  }
+}
+
+__host__ void sub_tensor_cuda(Tensor *tensor1, Tensor *tensor2,
+                              float *result_data) {
+  int number_of_blocks =
+      (tensor1->size + THREADS_PER_BLOCK - 1) / THREADS_PER_BLOCK;
+  sub_tensor_cuda_kernel<<<number_of_blocks, THREADS_PER_BLOCK>>>(
+      tensor1->data, tensor2->data, result_data, tensor1->size);
+
+  cudaError_t error = cudaGetLastError();
+  if (error != cudaSuccess) {
+    fprintf(stderr, "CUDA error: %s\n", cudaGetErrorString(error));
+    exit(1);
+  }
+
+  cudaDeviceSynchronize();
+}
+
 __global__ void add_broadcasted_tensor_cuda_kernel(float *data1, float *data2,
                                                    float *result_data,
                                                    int *broadcasted_shape,

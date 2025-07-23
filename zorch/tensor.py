@@ -330,6 +330,28 @@ class Tensor:
 
         return result_data
 
+    def __sub__(self, other):
+        if isinstance(other, (int, float)):
+            other = other * self.ones_like()
+
+        # Call add_tensor if shapes are identical
+        Tensor._C.sub_tensor.argtypes = [
+            ctypes.POINTER(CTensor), ctypes.POINTER(CTensor)]
+        Tensor._C.sub_tensor.restype = ctypes.POINTER(CTensor)
+
+        result_tensor_ptr = Tensor._C.sub_tensor(self.tensor, other.tensor)
+
+        result_data = Tensor()
+        result_data.tensor = result_tensor_ptr
+        result_data.shape = self.shape.copy()
+        result_data.ndim = self.ndim
+
+        result_data.device = self.device
+        # Update this to calculate the correct number of elements if broadcasting
+        result_data.numel = self.numel
+
+        return result_data
+
     def __pow__(self, other):
         other = float(other)
         Tensor._C.tensor_pow_scalar.argtypes = [
