@@ -1,5 +1,5 @@
 import zorch
-from zorch.functions import add, square
+from zorch.functions import add, sin, square
 from zorch.variable import Variable
 
 
@@ -77,3 +77,10 @@ print(x.grad, y.grad)
 # 数值微分
 z = (goldstein(1.000001, 1)-goldstein(1, 1)) / 0.000001
 print(z)
+
+x = Variable(zorch.Tensor(3.1415926535897932/4))
+y = sin(x)
+y.backward()
+
+print(y.data)
+print(x.grad)

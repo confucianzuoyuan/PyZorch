@@ -383,8 +383,6 @@ class Tensor:
         result_data.device = self.device
         result_data.numel = self.numel
 
-        result_data.requires_grad = self.requires_grad
-
         return result_data
 
     def cos(self):
@@ -399,8 +397,6 @@ class Tensor:
         result_data.ndim = self.ndim
         result_data.device = self.device
         result_data.numel = self.numel
-
-        result_data.requires_grad = self.requires_grad
 
         return result_data
 

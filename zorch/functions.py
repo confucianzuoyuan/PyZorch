@@ -130,6 +130,17 @@ class Pow(Function):
         return gx
 
 
+class Sin(Function):
+    def forward(self, x):
+        y = x.sin()
+        return y
+
+    def backward(self, gy):
+        x = self.inputs[0].data
+        gx = gy * x.cos()
+        return gx
+
+
 def square(x: "zorch.Variable") -> "zorch.Variable":
     return Square()(x)
 
@@ -174,3 +185,7 @@ def rdiv(x0, x1):
 
 def pow(x, c):
     return Pow(c)(x)
+
+
+def sin(x):
+    return Sin()(x)
