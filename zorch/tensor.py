@@ -1,6 +1,5 @@
 import ctypes
 import os
-from .autograd.functions import *
 from typing import Self
 
 
@@ -19,18 +18,7 @@ class Tensor:
     module_dir = os.path.dirname(os.path.abspath(__file__))
     _C = ctypes.CDLL(os.path.join(module_dir, "libtensor.so"))
 
-    def set_creator(self, func):
-        self.creator = func
-        self.generation = func.generation + 1
-
-    def cleargrad(self):
-        self.grad = None
-
-    def __init__(self, data=None, device="cpu", requires_grad=False, name=None):
-        self.creator = None
-        # 张量的“辈分”，用来计算张量组成的有向无环图。
-        self.generation = 0
-        self.name = name
+    def __init__(self, data=None, device="cpu"):
         if data != None:
             if isinstance(data, (float, int)):
                 data = [data]
@@ -60,11 +48,6 @@ class Tensor:
                 for s in self.shape:
                     self.numel *= s
 
-            self.requires_grad = requires_grad
-            self.hooks = []
-            self.grad = None
-            self.grad_fn = None
-
             Tensor._C.create_tensor.argtypes = [ctypes.POINTER(
                 ctypes.c_float), ctypes.POINTER(ctypes.c_int), ctypes.c_int, ctypes.c_char_p]
             Tensor._C.create_tensor.restype = ctypes.POINTER(CTensor)
@@ -80,10 +63,6 @@ class Tensor:
             self.shape = None,
             self.ndim = None,
             self.device = device
-            self.requires_grad = requires_grad
-            self.hooks = []
-            self.grad = None
-            self.grad_fn = None
 
     def __len__(self):
         if len(self.shape) == 0:
@@ -248,10 +227,6 @@ class Tensor:
         result_data.device = self.device
         result_data.numel = self.numel
 
-        result_data.requires_grad = self.requires_grad
-        if result_data.requires_grad:
-            result_data.grad_fn = ReshapeBackward(self)
-
         return result_data
 
     def ones_like(self):
@@ -335,9 +310,6 @@ class Tensor:
             for s in result_data.shape:
                 result_data.numel *= s
 
-            result_data.requires_grad = self.requires_grad or other.requires_grad
-            if result_data.requires_grad:
-                result_data.grad_fn = AddBroadcastedBackward(self, other)
         else:
             # 如果两个张量形状相同，则调用add_tensor
             Tensor._C.add_tensor.argtypes = [
@@ -356,10 +328,6 @@ class Tensor:
             # 则需要更新numel
             result_data.numel = self.numel
 
-            result_data.requires_grad = self.requires_grad or other.requires_grad
-            if result_data.requires_grad:
-                result_data.grad_fn = AddBackward(self, other)
-
         return result_data
 
     def __pow__(self, other):
@@ -377,8 +345,6 @@ class Tensor:
         resutl_data.ndim = self.ndim
         resutl_data.device = self.device
         resutl_data.numel = self.numel
-
-        resutl_data.requires_grad = self.requires_grad
 
         return resutl_data
 
@@ -429,10 +395,6 @@ class Tensor:
         result_data.device = self.device
         result_data.numel = self.numel
 
-        result_data.requires_grad = self.requires_grad
-        if result_data.requires_grad:
-            result_data.grad_fn = LogBackward(self)
-
         return result_data
 
     def __rmul__(self, other):
@@ -451,8 +413,6 @@ class Tensor:
         resutl_data.device = self.device
         resutl_data.numel = self.numel
 
-        resutl_data.requires_grad = self.requires_grad
-
         return resutl_data
 
     def exp(self):
@@ -468,10 +428,6 @@ class Tensor:
         result_data.device = self.device
         result_data.numel = self.numel
 
-        result_data.requires_grad = self.requires_grad
-        if result_data.requires_grad:
-            result_data.grad_fn = ExpBackward(self)
-
         return result_data
 
     def sigmoid(self):
@@ -486,10 +442,6 @@ class Tensor:
         result_data.ndim = self.ndim
         result_data.device = self.device
         result_data.numel = self.numel
-
-        result_data.requires_grad = self.requires_grad
-        if result_data.requires_grad:
-            result_data.grad_fn = SigmoidBackward(self)
 
         return result_data
 
@@ -547,10 +499,6 @@ class Tensor:
         for s in result_data.shape:
             result_data.numel *= s
 
-        result_data.requires_grad = self.requires_grad
-        if result_data.requires_grad:
-            result_data.grad_fn = SumBackward(self, axis, keepdim=keepdim)
-
         return result_data
 
     def transpose(self, axis1, axis2):
@@ -575,10 +523,6 @@ class Tensor:
         result_data.device = self.device
         result_data.numel = self.numel
 
-        result_data.requires_grad = self.requires_grad
-        if result_data.requires_grad:
-            result_data.grad_fn = TransposeBackward(self, axis1, axis2)
-
         return result_data
 
     @property
@@ -594,10 +538,6 @@ class Tensor:
         result_data.ndim = self.ndim
         result_data.device = self.device
         result_data.numel = self.numel
-
-        result_data.requires_grad = self.requires_grad
-        if result_data.requires_grad:
-            result_data.grad_fn = TBackward(self)
 
         return result_data
 
@@ -616,10 +556,6 @@ class Tensor:
             result_data.tensor = Tensor._C.scalar_mul_tensor(
                 self.tensor, ctypes.c_float(other))
 
-            result_data.requires_grad = self.requires_grad
-            if result_data.requires_grad:
-                result_data.grad_fn = ScalarMulBackward(self, other)
-
             return result_data
         # 处理标量
         elif isinstance(other, Tensor) and len(other.shape) == 0:
@@ -636,10 +572,6 @@ class Tensor:
 
             result_data.tensor = Tensor._C.scalar_mul_tensor(
                 self.tensor, ctypes.c_float(other))
-
-            result_data.requires_grad = self.requires_grad
-            if result_data.requires_grad:
-                result_data.grad_fn = ScalarMulBackward(self, other)
 
             return result_data
         elif isinstance(other, Tensor):
@@ -661,54 +593,7 @@ class Tensor:
             result_data.device = self.device
             result_data.numel = self.numel
 
-            result_data.requires_grad = self.requires_grad or other.requires_grad
-            if result_data.requires_grad:
-                result_data.grad_fn = ElementwiseMulBackward(self, other)
-
             return result_data
         else:
             raise TypeError(
                 "Unsupported operand type(s) for *: '{}' and '{}'".format(type(self), type(other)))
-
-    def detach(self):
-        self.grad = None
-        self.grad_fn = None
-
-        return self
-
-    def backward(self, retain_grad=False):
-        if self.grad is None:
-            self.grad = self.ones_like()
-
-        funcs = []
-        seen_set = set()
-
-        # 对算子进行排序，这样pop出来的算子的辈分肯定是最大的。
-        def add_func(f):
-            if f not in seen_set:
-                funcs.append(f)
-                seen_set.add(f)
-                funcs.sort(key=lambda x: x.generation)
-        add_func(self.creator)
-
-        while funcs:
-            f = funcs.pop()
-            gys = [output().grad for output in f.outputs]
-            gxs = f.backward(*gys)
-            if not isinstance(gxs, tuple):
-                gxs = (gxs,)
-
-            for x, gx in zip(f.inputs, gxs):
-                if x.grad is None:
-                    x.grad = gx
-                else:
-                    x.grad = x.grad + gx
-
-                if x.creator is not None:
-                    add_func(x.creator)
-
-            # 只有终端的变量需要保留梯度，其他中间张量的梯度无需保留
-            # 设置 y().grad = None之后，引用计数将变为 0 ，导数的数据会从内存中被删除 。
-            if not retain_grad:
-                for y in f.outputs:
-                    y().grad = None  # y是weakref,需要加()
