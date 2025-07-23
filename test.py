@@ -22,3 +22,7 @@ print(y)
 x = Variable(zorch.Tensor(2.0))
 y = 3.0 * x + 1.0
 print(y)
+
+x = Variable(zorch.Tensor(2.0))
+y = -x
+print(y)

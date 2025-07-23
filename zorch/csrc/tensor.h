@@ -74,6 +74,7 @@ Tensor *zeros_like_tensor(Tensor *tensor);
 Tensor *sin_tensor(Tensor *tensor);
 Tensor *cos_tensor(Tensor *tensor);
 Tensor *log_tensor(Tensor *tensor);
+Tensor *neg_tensor(Tensor *tensor);
 
 /* 改变张量的形状 */
 Tensor *reshape_tensor(Tensor *tensor, int *new_shape, int new_ndim);

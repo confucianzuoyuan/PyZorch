@@ -267,6 +267,12 @@ void log_tensor_cpu(Tensor *tensor, float *result_data) {
   }
 }
 
+void neg_tensor_cpu(Tensor *tensor, float *result_data) {
+  for (int i = 0; i < tensor->size; i++) {
+    result_data[i] = -tensor->data[i];
+  }
+}
+
 void exp_tensor_cpu(Tensor *tensor, float *result_data) {
   for (int i = 0; i < tensor->size; i++) {
     result_data[i] = expf(tensor->data[i]);
