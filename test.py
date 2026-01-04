@@ -2,21 +2,27 @@ from zorch import Variable, Tensor
 from zorch.functions import sin
 import math
 
+x = Variable(Tensor(2.0))
+print(x / 2)
+print(4 / x)
 
-def my_sin(x, threshold=0.0001):
-    y = 0
-    for i in range(100000):
-        c = (-1) ** i / math.factorial(2 * i + 1)
-        t = c * x ** (2 * i + 1)
-        y = y + t
-        if abs(t.data) < threshold:
-            break
+def f(x):
+    y = x ** 4 - 2 * x ** 2
     return y
 
 
-x = Variable(Tensor(0.7853981633974483))
-y = my_sin(x)
-y.backward()
+def gx2(x):
+    return 12 * x ** 2 - 4
 
-print(y.data)
-print(x.grad)
+
+x = Variable(Tensor(2.0))
+iters = 10
+
+for i in range(iters):
+    print(i, x)
+
+    y = f(x)
+    x.cleargrad()
+    y.backward()
+
+    x.data -= x.grad / gx2(x.data)

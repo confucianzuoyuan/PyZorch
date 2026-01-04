@@ -40,6 +40,8 @@ Tensor *matmul_tensor(Tensor *tensor1, Tensor *tensor2);
 
 /* 逐点相乘运算，阿达玛积 */
 Tensor *elementwise_mul_tensor(Tensor *tensor1, Tensor *tensor2);
+/* 逐点相除 */
+Tensor *elementwise_div_tensor(Tensor *tensor1, Tensor *tensor2);
 
 /* 张量和标量的相乘 */
 Tensor *scalar_mul_tensor(Tensor *tensor, float scalar);

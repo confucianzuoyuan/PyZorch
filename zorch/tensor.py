@@ -352,6 +352,73 @@ class Tensor:
 
         return result_data
 
+    def __truediv__(self, other):
+        if isinstance(other, (int, float)):
+            other = float(other)
+
+            Tensor._C.tensor_div_scalar.argtypes = [
+                ctypes.POINTER(CTensor),
+                ctypes.c_float,
+            ]
+            Tensor._C.tensor_div_scalar.restype = ctypes.POINTER(CTensor)
+            result_tensor_ptr = Tensor._C.tensor_div_scalar(
+                self.tensor, other)
+
+            result_data = Tensor()
+            result_data.tensor = result_tensor_ptr
+            result_data.shape = self.shape.copy()
+            result_data.ndim = self.ndim
+
+            result_data.device = self.device
+            # Update this to calculate the correct number of elements if broadcasting
+            result_data.numel = self.numel
+
+            return result_data
+
+        Tensor._C.elementwise_div_tensor.argtypes = [
+            ctypes.POINTER(CTensor),
+            ctypes.POINTER(CTensor),
+        ]
+        Tensor._C.elementwise_div_tensor.restype = ctypes.POINTER(CTensor)
+        result_tensor_ptr = Tensor._C.elementwise_div_tensor(
+            self.tensor, other.tensor)
+
+        result_data = Tensor()
+        result_data.tensor = result_tensor_ptr
+        result_data.shape = self.shape.copy()
+        result_data.ndim = self.ndim
+
+        result_data.device = self.device
+        # Update this to calculate the correct number of elements if broadcasting
+        result_data.numel = self.numel
+
+        return result_data
+
+    def __rtruediv__(self, other):
+        if isinstance(other, (int, float)):
+            other = float(other)
+
+            Tensor._C.scalar_div_tensor.argtypes = [
+                ctypes.c_float,
+                ctypes.POINTER(CTensor),
+            ]
+            Tensor._C.scalar_div_tensor.restype = ctypes.POINTER(CTensor)
+            result_tensor_ptr = Tensor._C.scalar_div_tensor(
+                self.tensor, other)
+
+            result_data = Tensor()
+            result_data.tensor = result_tensor_ptr
+            result_data.shape = self.shape.copy()
+            result_data.ndim = self.ndim
+
+            result_data.device = self.device
+            # Update this to calculate the correct number of elements if broadcasting
+            result_data.numel = self.numel
+
+            return result_data
+
+        return NotImplemented
+
     def __pow__(self, other):
         other = float(other)
         Tensor._C.tensor_pow_scalar.argtypes = [
@@ -361,14 +428,19 @@ class Tensor:
         result_tensor_ptr = Tensor._C.tensor_pow_scalar(
             self.tensor, ctypes.c_float(other))
 
-        resutl_data = Tensor()
-        resutl_data.tensor = result_tensor_ptr
-        resutl_data.shape = self.shape.copy()
-        resutl_data.ndim = self.ndim
-        resutl_data.device = self.device
-        resutl_data.numel = self.numel
+        result_data = Tensor()
+        result_data.tensor = result_tensor_ptr
+        result_data.shape = self.shape.copy()
+        result_data.ndim = self.ndim
+        result_data.device = self.device
+        result_data.numel = self.numel
 
-        return resutl_data
+        return result_data
+
+    def __lt__(self, other):
+        if self.ndim == 0:
+            return self[0] < other
+        return False
 
     def sin(self):
         Tensor._C.sin_tensor.argtypes = [ctypes.POINTER(CTensor)]
@@ -416,8 +488,8 @@ class Tensor:
         return result_data
 
     def __abs__(self):
-        Tensor._C.neg_tensor.argtypes = [ctypes.POINTER(CTensor)]
-        Tensor._C.neg_tensor.restype = ctypes.POINTER(CTensor)
+        Tensor._C.abs_tensor.argtypes = [ctypes.POINTER(CTensor)]
+        Tensor._C.abs_tensor.restype = ctypes.POINTER(CTensor)
 
         result_tensor_ptr = Tensor._C.abs_tensor(self.tensor)
 
@@ -454,14 +526,14 @@ class Tensor:
         result_tensor_ptr = Tensor._C.scalar_mul_tensor(
             self.tensor, ctypes.c_float(other))
 
-        resutl_data = Tensor()
-        resutl_data.tensor = result_tensor_ptr
-        resutl_data.shape = self.shape.copy()
-        resutl_data.ndim = self.ndim
-        resutl_data.device = self.device
-        resutl_data.numel = self.numel
+        result_data = Tensor()
+        result_data.tensor = result_tensor_ptr
+        result_data.shape = self.shape.copy()
+        result_data.ndim = self.ndim
+        result_data.device = self.device
+        result_data.numel = self.numel
 
-        return resutl_data
+        return result_data
 
     def exp(self):
         Tensor._C.exp_tensor.argtypes = [ctypes.POINTER(CTensor)]

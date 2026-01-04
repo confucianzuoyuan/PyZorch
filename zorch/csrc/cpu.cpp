@@ -311,9 +311,28 @@ void elementwise_mul_tensor_cpu(Tensor *tensor1, Tensor *tensor2,
   }
 }
 
+void elementwise_div_tensor_cpu(Tensor *tensor1, Tensor *tensor2,
+                                float *result_data) {
+  for (int i = 0; i < tensor1->size; i++) {
+    result_data[i] = tensor1->data[i] / tensor2->data[i];
+  }
+}
+
 /// 张量的绝对值算子
 void abs_tensor_cpu(Tensor *tensor, float *result_data) {
   for (int i = 0; i < tensor->size; i++) {
     result_data[i] = abs(tensor->data[i]);
+  }
+}
+
+void scalar_div_tensor_cpu(Tensor *tensor, float scalar, float *result_data) {
+  for (int i = 0; i < tensor->size; i++) {
+    result_data[i] = scalar / tensor->data[i];
+  }
+}
+
+void tensor_div_scalar_cpu(Tensor *tensor, float scalar, float *result_data) {
+  for (int i = 0; i < tensor->size; i++) {
+    result_data[i] = tensor->data[i] / scalar;
   }
 }

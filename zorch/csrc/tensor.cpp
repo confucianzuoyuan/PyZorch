@@ -827,6 +827,55 @@ Tensor *elementwise_mul_tensor(Tensor *tensor1, Tensor *tensor2) {
   }
 }
 
+Tensor *elementwise_div_tensor(Tensor *tensor1, Tensor *tensor2) {
+  if (tensor1->ndim != tensor2->ndim) {
+    fprintf(stderr,
+            "Tensors must have the same number of dimensions %d and %d for "
+            "element-wise divide\n",
+            tensor1->ndim, tensor2->ndim);
+    exit(1);
+  }
+
+  if (strcmp(tensor1->device, tensor2->device) != 0) {
+    fprintf(stderr, "Tensors must be on the same device: %s and %s\n",
+            tensor1->device, tensor2->device);
+    exit(1);
+  }
+
+  int ndim = tensor1->ndim;
+  int *shape = (int *)malloc(ndim * sizeof(int));
+  if (shape == NULL) {
+    fprintf(stderr, "Memory allocation failed\n");
+    exit(1);
+  }
+
+  for (int i = 0; i < ndim; i++) {
+    if (tensor1->shape[i] != tensor2->shape[i]) {
+      fprintf(stderr,
+              "Tensors must have the same shape %d and %d at index %d for "
+              "element-wise multiplication\n",
+              tensor1->shape[i], tensor2->shape[i], i);
+      exit(1);
+    }
+    shape[i] = tensor1->shape[i];
+  }
+
+  if (strcmp(tensor1->device, "cpu") == 0) {
+    float *result_data = (float *)malloc(tensor1->size * sizeof(float));
+    if (result_data == NULL) {
+      fprintf(stderr, "Memory allocation failed\n");
+      exit(1);
+    }
+    elementwise_div_tensor_cpu(tensor1, tensor2, result_data);
+    return create_tensor(result_data, shape, ndim, tensor1->device);
+  } else {
+    float *result_data;
+    cudaMalloc((void **)&result_data, tensor1->size * sizeof(float));
+    elementwise_div_tensor_cuda(tensor1, tensor2, result_data);
+    return create_tensor(result_data, shape, ndim, tensor1->device);
+  }
+}
+
 Tensor *neg_tensor(Tensor *tensor) {
   int ndim = tensor->ndim;
   int *shape = (int *)malloc(ndim * sizeof(int));
@@ -879,6 +928,62 @@ Tensor *abs_tensor(Tensor *tensor) {
     float *result_data;
     cudaMalloc((void **)&result_data, tensor->size * sizeof(float));
     abs_tensor_cuda(tensor, result_data);
+    return create_tensor(result_data, shape, ndim, tensor->device);
+  }
+}
+
+Tensor *scalar_div_tensor(float scalar, Tensor *tensor) {
+  int ndim = tensor->ndim;
+  int *shape = (int *)malloc(ndim * sizeof(int));
+  if (shape == NULL) {
+    fprintf(stderr, "Memory allocation failed\n");
+    exit(1);
+  }
+
+  for (int i = 0; i < ndim; i++) {
+    shape[i] = tensor->shape[i];
+  }
+
+  if (strcmp(tensor->device, "cpu") == 0) {
+    float *result_data = (float *)malloc(tensor->size * sizeof(float));
+    if (result_data == NULL) {
+      fprintf(stderr, "Memory allocation failed\n");
+      exit(1);
+    }
+    scalar_div_tensor_cpu(tensor, scalar, result_data);
+    return create_tensor(result_data, shape, ndim, tensor->device);
+  } else {
+    float *result_data;
+    cudaMalloc((void **)&result_data, tensor->size * sizeof(float));
+    scalar_div_tensor_cuda(tensor, scalar, result_data);
+    return create_tensor(result_data, shape, ndim, tensor->device);
+  }
+}
+
+Tensor *tensor_div_scalar(Tensor *tensor, float scalar) {
+  int ndim = tensor->ndim;
+  int *shape = (int *)malloc(ndim * sizeof(int));
+  if (shape == NULL) {
+    fprintf(stderr, "Memory allocation failed\n");
+    exit(1);
+  }
+
+  for (int i = 0; i < ndim; i++) {
+    shape[i] = tensor->shape[i];
+  }
+
+  if (strcmp(tensor->device, "cpu") == 0) {
+    float *result_data = (float *)malloc(tensor->size * sizeof(float));
+    if (result_data == NULL) {
+      fprintf(stderr, "Memory allocation failed\n");
+      exit(1);
+    }
+    tensor_div_scalar_cpu(tensor, scalar, result_data);
+    return create_tensor(result_data, shape, ndim, tensor->device);
+  } else {
+    float *result_data;
+    cudaMalloc((void **)&result_data, tensor->size * sizeof(float));
+    tensor_div_scalar_cuda(tensor, scalar, result_data);
     return create_tensor(result_data, shape, ndim, tensor->device);
   }
 }

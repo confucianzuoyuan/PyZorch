@@ -28,6 +28,9 @@ class Variable:
         self.creator: "zorch.Function" = None
         self.generation = 0
 
+    def to(self, device):
+        self.data.to(device)
+
     def set_creator(self, func: "zorch.Function"):
         self.creator = func
         self.generation = func.generation + 1
