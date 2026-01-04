@@ -119,8 +119,41 @@ class Sin(Function):
         return y
 
     def backward(self, gy):
-        x = self.inputs[0].data
+        x, = self.inputs
         gx = gy * x.cos()
+        return gx
+
+
+class Cos(Function):
+    def forward(self, x):
+        y = x.cos()
+        return y
+
+    def backward(self, gy):
+        x, = self.inputs
+        gx = gy * -x.sin()
+        return gx
+
+
+class Log(Function):
+    def forward(self, x):
+        y = x.log()
+        return y
+
+    def backward(self, gy):
+        x, = self.inputs
+        gx = gy / x
+        return gx
+
+
+class Exp(Function):
+    def forward(self, x):
+        y = x.exp()
+        return y
+
+    def backward(self, gy):
+        y = self.outputs[0]()
+        gx = gy * y
         return gx
 
 
@@ -164,3 +197,15 @@ def pow(x, c):
 
 def sin(x):
     return Sin()(x)
+
+
+def cos(x):
+    return Cos()(x)
+
+
+def log(x):
+    return Log()(x)
+
+
+def exp(x):
+    return Exp()(x)
