@@ -310,3 +310,10 @@ void elementwise_mul_tensor_cpu(Tensor *tensor1, Tensor *tensor2,
     result_data[i] = tensor1->data[i] * tensor2->data[i];
   }
 }
+
+/// 张量的绝对值算子
+void abs_tensor_cpu(Tensor *tensor, float *result_data) {
+  for (int i = 0; i < tensor->size; i++) {
+    result_data[i] = abs(tensor->data[i]);
+  }
+}

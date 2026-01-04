@@ -51,5 +51,5 @@ void elementwise_mul_tensor_cpu(Tensor *tensor1, Tensor *tensor2,
                                 float *result_data);
 void neg_tensor_cpu(Tensor *tensor, float *result_data);
 void sub_tensor_cpu(Tensor *tensor1, Tensor *tensor2, float *result_data);
-
+void abs_tensor_cpu(Tensor *tensor, float *result_data);
 #endif

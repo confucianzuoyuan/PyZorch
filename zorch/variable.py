@@ -1,4 +1,5 @@
 import zorch
+from zorch.functions import using_config
 
 
 def as_tensor(t) -> "zorch.Tensor":
@@ -31,6 +32,9 @@ class Variable:
         self.creator = func
         self.generation = func.generation + 1
 
+    def unchain(self):
+        self.creator = None
+
     def cleargrad(self):
         self.grad = None
 
@@ -55,7 +59,7 @@ class Variable:
         p = str(self.data).replace('\n', '\n' + ' ' * 9)
         return 'variable(' + p + ')'
 
-    def backward(self, retain_grad=False):
+    def backward(self, retain_grad=False, create_graph=False):
         if self.grad is None:
             self.grad = self.data.ones_like()
 
@@ -75,22 +79,34 @@ class Variable:
             f = funcs.pop()
             # o 是 weakref,访问需要加()
             gys = [o().grad for o in f.outputs]
-            gxs = f.backward(*gys)
-            if not isinstance(gxs, tuple):
-                gxs = (gxs,)
 
-            for x, gx in zip(f.inputs, gxs):
-                if x.grad is None:
-                    x.grad = gx
-                else:
-                    x.grad = x.grad + gx
+            with using_config("enable_backprop", create_graph):
+                gxs = f.backward(*gys)
+                if not isinstance(gxs, tuple):
+                    gxs = (gxs,)
 
-                if x.creator is not None:
-                    add_func(x.creator)
+                for x, gx in zip(f.inputs, gxs):
+                    if x.grad is None:
+                        x.grad = gx
+                    else:
+                        x.grad = x.grad + gx
+
+                    if x.creator is not None:
+                        add_func(x.creator)
 
             if not retain_grad:
                 for y in f.outputs:
                     y().grad = None  # y是weakref
+
+    def unchain_backward(self):
+        if self.creator is not None:
+            funcs = [self.creator]
+            while funcs:
+                f = funcs.pop()
+                for x in f.inputs:
+                    if x.creator is not None:
+                        funcs.append(x.creator)
+                        x.unchain()
 
 
 Variable.__mul__ = zorch.mul

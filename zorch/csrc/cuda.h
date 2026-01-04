@@ -93,4 +93,8 @@ __host__ void elementwise_mul_tensor_cuda(Tensor *tensor1, Tensor *tensor2,
 __global__ void neg_tensor_cuda_kernel(float *data, float *result_data,
                                        int size);
 __host__ void neg_tensor_cuda(Tensor *tensor, float *result_data);
+
+__global__ void abs_tensor_cuda_kernel(float *data, float *result_data,
+                                       int size);
+__host__ void abs_tensor_cuda(Tensor *tensor, float *result_data);
 #endif

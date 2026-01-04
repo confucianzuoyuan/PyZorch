@@ -144,7 +144,7 @@ $
 
 == 4 矩阵的逐点乘法（哈达玛积）的反向传播
 
-假设$Z=X dot.circle Y$，那么$Z_(i j)=X_(i j) times Y_(i j)$
+假设$Z=X dot.o Y$，那么$Z_(i j)=X_(i j) times Y_(i j)$
 
 损失函数是$L(Z)$
 
@@ -167,8 +167,8 @@ $
 所以
 
 $
-  (partial L) / (partial X) = (partial L) / (partial Z) dot.circle Y = "gradient" dot.circle Y \
-  (partial L) / (partial Y) = (partial L) / (partial Z) dot.circle X = "gradient" dot.circle X
+  (partial L) / (partial X) = (partial L) / (partial Z) dot.o Y = "gradient" dot.o Y \
+  (partial L) / (partial Y) = (partial L) / (partial Z) dot.o X = "gradient" dot.o X
 $
 
 == 5 对矩阵进行逐点运算的反向传播
@@ -202,7 +202,7 @@ $
 所以有
 
 $
-  (partial L) / (partial X) = (partial L) / (partial Z) dot.circle cos(X) = "gradient" dot.circle cos(X)
+  (partial L) / (partial X) = (partial L) / (partial Z) dot.o cos(X) = "gradient" dot.o cos(X)
 $
 
 === $cos$函数的反向传播
@@ -235,7 +235,7 @@ $
 所以有
 
 $
-  (partial L) / (partial X) = -(partial L) / (partial Z) dot.circle sin (X) = -"gradient" dot.circle sin(X)
+  (partial L) / (partial X) = -(partial L) / (partial Z) dot.o sin (X) = -"gradient" dot.o sin(X)
 $
 
 === $log$函数的反向传播
@@ -267,7 +267,7 @@ $
 所以有
 
 $
-  (partial L) / (partial X) = (partial L) / (partial Z) dot.circle 1 / (X) = "gradient" dot.circle 1 / X
+  (partial L) / (partial X) = (partial L) / (partial Z) dot.o 1 / (X) = "gradient" dot.o 1 / X
 $
 
 = II 各种算子的语义
@@ -342,7 +342,7 @@ $
 
 如果 PyTorch 操作支持广播，则可以自动扩展其张量参数，使其大小相等（而无需复制数据）。
 
-如果满足以下规则，则两个张量是“可广播的”
+如果满足以下规则，则两个张量是"可广播的"
 
 - 每个张量至少有一个维度。
 - 当迭代维度大小时，从尾部维度开始，维度大小必须相等，其中一个为 1，或者其中一个不存在。
@@ -375,7 +375,7 @@ $
 # x 和 y 不可广播，因为倒数第三个的维度 2 != 3，不满足条件2
 ```
 
-如果两个张量 x、y 是“可广播的”，则结果张量大小的计算方式如下
+如果两个张量 x、y 是"可广播的"，则结果张量大小的计算方式如下
 
 - 如果 x 和 y 的维度数不相等，则在维度较少的张量的维度前添加 1，使它们的长度相等。
 - 然后，对于每个维度大小，结果维度大小是 x 和 y 沿该维度的最大大小。
