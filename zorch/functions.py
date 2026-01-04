@@ -23,8 +23,9 @@ def no_grad():
 
 
 class Function:
-    def __call__(self, *inputs) -> "zorch.Variable":
-        inputs: list["zorch.Variable"] = [zorch.as_variable(x) for x in inputs]
+    def __call__(self, *inputs):
+        inputs = [zorch.as_variable(x) for x in inputs]
+        # ① 正向传播的计算(主处理)
         xs = [x.data for x in inputs]
         ys = self.forward(*xs)
         if not isinstance(ys, tuple):
@@ -33,10 +34,12 @@ class Function:
 
         if Config.enable_backprop:
             self.generation = max([x.generation for x in inputs])
+            # ② 创建连接
             for output in outputs:
                 output.set_creator(self)
-        self.inputs = inputs
-        self.outputs = [weakref.ref(output) for output in outputs]
+            self.inputs = inputs
+            self.outputs = [weakref.ref(output) for output in outputs]
+
         return outputs if len(outputs) > 1 else outputs[0]
 
     def forward(self, x: "zorch.Tensor") -> "zorch.Tensor":
@@ -46,30 +49,10 @@ class Function:
         raise NotImplementedError()
 
 
-class Square(Function):
-    def forward(self, x):
-        return x ** 2
-
-    def backward(self, gy):
-        x = self.inputs[0].data
-        gx = 2 * x * gy
-        return gx
-
-
-class Exp(Function):
-    def forward(self, x):
-        return x.exp()
-
-    def backward(self, gy):
-        x = self.inputs[0].data
-        gx = x.exp() * gy
-        return gx
-
-
 class Add(Function):
     def forward(self, x0, x1):
         y = x0 + x1
-        return (y,)
+        return y
 
     def backward(self, gy):
         return gy, gy
@@ -81,7 +64,8 @@ class Mul(Function):
         return y
 
     def backward(self, gy):
-        x0, x1 = self.inputs[0].data, self.inputs[1].data
+        x0, x1 = self.inputs
+
         return gy * x1, gy * x0
 
 
@@ -108,7 +92,7 @@ class Div(Function):
         return y
 
     def backward(self, gy):
-        x0, x1 = self.inputs[0].data, self.inputs[1].data
+        x0, x1 = self.inputs
         gx0 = gy / x1
         gx1 = gy * (-x0 / x1 ** 2)
         return gx0, gx1
@@ -123,9 +107,8 @@ class Pow(Function):
         return y
 
     def backward(self, gy):
-        x = self.inputs[0].data
+        x, = self.inputs
         c = self.c
-
         gx = c * x ** (c - 1) * gy
         return gx
 
@@ -141,16 +124,8 @@ class Sin(Function):
         return gx
 
 
-def square(x: "zorch.Variable") -> "zorch.Variable":
-    return Square()(x)
-
-
-def exp(x: "zorch.Variable") -> "zorch.Variable":
-    return Exp()(x)
-
-
-def add(x0: "zorch.Variable", x1) -> "zorch.Variable":
-    x1: "zorch.Variable" = zorch.as_tensor(x1)
+def add(x0, x1):
+    x1 = zorch.as_tensor(x1)
     return Add()(x0, x1)
 
 

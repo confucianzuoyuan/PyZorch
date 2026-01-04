@@ -2,7 +2,7 @@ import zorch
 from zorch.functions import using_config
 
 
-def as_tensor(t) -> "zorch.Tensor":
+def as_tensor(t):
     if isinstance(t, (float, int)):
         return zorch.Tensor(t)
     return t
@@ -24,8 +24,8 @@ class Variable:
 
         self.data = data
         self.name = name
-        self.grad: "zorch.Tensor" | None = None
-        self.creator: "zorch.Function" = None
+        self.grad = None
+        self.creator = None
         self.generation = 0
 
     def to(self, device):
@@ -64,7 +64,7 @@ class Variable:
 
     def backward(self, retain_grad=False, create_graph=False):
         if self.grad is None:
-            self.grad = self.data.ones_like()
+            self.grad = Variable(self.data.ones_like())
 
         funcs = []
         seen_set = set()
@@ -87,7 +87,7 @@ class Variable:
                 gxs = f.backward(*gys)
                 if not isinstance(gxs, tuple):
                     gxs = (gxs,)
-
+                
                 for x, gx in zip(f.inputs, gxs):
                     if x.grad is None:
                         x.grad = gx
