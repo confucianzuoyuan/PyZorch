@@ -267,6 +267,12 @@ void cos_tensor_cpu(Tensor *tensor, float *result_data) {
   }
 }
 
+void tanh_tensor_cpu(Tensor *tensor, float *result_data) {
+  for (int i = 0; i < tensor->size; i++) {
+    result_data[i] = tanhf(tensor->data[i]);
+  }
+}
+
 void log_tensor_cpu(Tensor *tensor, float *result_data) {
   for (int i = 0; i < tensor->size; i++) {
     result_data[i] = logf(tensor->data[i]);

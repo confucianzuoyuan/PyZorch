@@ -497,6 +497,21 @@ class Tensor:
 
         return result_data
 
+    def tanh(self):
+        Tensor._C.tanh_tensor.argtypes = [ctypes.POINTER(CTensor)]
+        Tensor._C.tanh_tensor.restype = ctypes.POINTER(CTensor)
+
+        result_tensor_ptr = Tensor._C.tanh_tensor(self.tensor)
+
+        result_data = Tensor()
+        result_data.tensor = result_tensor_ptr
+        result_data.shape = self.shape.copy()
+        result_data.ndim = self.ndim
+        result_data.device = self.device
+        result_data.numel = self.numel
+
+        return result_data
+
     def log(self):
         Tensor._C.log_tensor.argtypes = [ctypes.POINTER(CTensor)]
         Tensor._C.log_tensor.restype = ctypes.POINTER(CTensor)

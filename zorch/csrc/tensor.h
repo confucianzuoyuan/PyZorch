@@ -75,6 +75,7 @@ Tensor *ones_like_tensor(Tensor *tensor);
 Tensor *zeros_like_tensor(Tensor *tensor);
 Tensor *sin_tensor(Tensor *tensor);
 Tensor *cos_tensor(Tensor *tensor);
+Tensor *tanh_tensor(Tensor *tensor);
 Tensor *log_tensor(Tensor *tensor);
 Tensor *neg_tensor(Tensor *tensor);
 
