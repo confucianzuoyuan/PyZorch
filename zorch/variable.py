@@ -87,7 +87,7 @@ class Variable:
                 gxs = f.backward(*gys)
                 if not isinstance(gxs, tuple):
                     gxs = (gxs,)
-                
+
                 for x, gx in zip(f.inputs, gxs):
                     if x.grad is None:
                         x.grad = gx
@@ -122,3 +122,6 @@ Variable.__rsub__ = zorch.rsub
 Variable.__truediv__ = zorch.div
 Variable.__rtruediv__ = zorch.rdiv
 Variable.__pow__ = zorch.pow
+Variable.matmul = zorch.matmul
+Variable.dot = zorch.matmul
+Variable.__matmul__ = zorch.matmul

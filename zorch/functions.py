@@ -19,7 +19,7 @@ def using_config(name, value):
 
 
 def no_grad():
-    return using_config('enable_backprop', False)
+    return using_config("enable_backprop", False)
 
 
 class Function:
@@ -166,6 +166,22 @@ class Exp(Function):
         y = self.outputs[0]()
         gx = gy * y
         return gx
+
+
+class MatMul(Function):
+    def forward(self, x, W):
+        y = x @ W
+        return y
+
+    def backward(self, gy):
+        x, W = self.inputs
+        gx = matmul(gy, W.T)
+        gW = matmul(x.T, gy)
+        return gx, gW
+
+
+def matmul(x, W):
+    return MatMul()(x, W)
 
 
 def add(x0, x1):

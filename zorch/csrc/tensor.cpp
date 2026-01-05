@@ -1022,4 +1022,55 @@ Tensor *tensor_div_scalar(Tensor *tensor, float scalar) {
     return create_tensor(result_data, shape, ndim, tensor->device);
   }
 }
+
+Tensor *matmul_tensor(Tensor *tensor1, Tensor *tensor2) {
+  // MxN @ NxP = MxP
+  // 检查两个矩阵的形状是否可以进行矩阵相乘
+  if (tensor1->shape[1] != tensor2->shape[0]) {
+    fprintf(stderr, "矩阵的形状不兼容，tensor1是：%dx%d, tensor2是：%dx%d\n",
+            tensor1->shape[0], tensor1->shape[1], tensor2->shape[0],
+            tensor2->shape[1]);
+    exit(1);
+  }
+
+  // 检查两个张量是否在同一个设备上
+  if (strcmp(tensor1->device, tensor2->device) != 0) {
+    fprintf(stderr, "张量必须在同一个设备上，tensor1在%s, tensor2在%s\n",
+            tensor1->device, tensor2->device);
+    exit(1);
+  }
+
+  int ndim = tensor1->ndim + tensor2->ndim - 2;
+  int *shape = (int *)malloc(ndim * sizeof(int));
+  if (shape == NULL) {
+    fprintf(stderr, "Memory allocation failed\n");
+    exit(1);
+  }
+  for (int i = 0; i < tensor1->ndim - 1; i++) {
+    shape[i] = tensor1->shape[i];
+  }
+  for (int i = tensor1->ndim - 1; i < ndim; i++) {
+    shape[i] = tensor2->shape[i - tensor1->ndim + 2];
+  }
+
+  int size = 1;
+  for (int i = 0; i < ndim; i++) {
+    size *= shape[i];
+  }
+
+  if (strcmp(tensor1->device, "cpu") == 0) {
+    float *result_data = (float *)malloc(size * sizeof(float));
+    if (result_data == NULL) {
+      fprintf(stderr, "Memory allocation failed\n");
+      exit(1);
+    }
+    matmul_tensor_cpu(tensor1, tensor2, result_data);
+    return create_tensor(result_data, shape, ndim, tensor1->device);
+  } else {
+    float *result_data;
+    cudaMalloc((void **)&result_data, size * sizeof(float));
+    matmul_tensor_cuda(tensor1, tensor2, result_data);
+    return create_tensor(result_data, shape, ndim, tensor1->device);
+  }
+}
 }

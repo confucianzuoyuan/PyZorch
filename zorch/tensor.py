@@ -757,3 +757,30 @@ class Tensor:
         else:
             raise TypeError(
                 "Unsupported operand type(s) for *: '{}' and '{}'".format(type(self), type(other)))
+
+    def __matmul__(self, other):
+        # 2D矩阵的相乘
+        if self.ndim != 2 or other.ndim != 2:
+            raise ValueError("矩阵相乘需要2D张量")
+
+        if self.shape[1] != other.shape[0]:
+            raise ValueError("两个矩阵无法进行矩阵乘法，因为形状不兼容")
+
+        Tensor._C.matmul_tensor.argtypes = [
+            ctypes.POINTER(CTensor),
+            ctypes.POINTER(CTensor),
+        ]
+        Tensor._C.matmul_tensor.restype = ctypes.POINTER(CTensor)
+
+        result_tensor_ptr = Tensor._C.matmul_tensor(self.tensor, other.tensor)
+
+        result_data = Tensor()
+        result_data.tensor = result_tensor_ptr
+        result_data.shape = [self.shape[0], other.shape[1]]
+        result_data.ndim = 2
+        result_data.device = self.device
+        result_data.numel = 1
+        for s in result_data.shape:
+            result_data.numel *= s
+
+        return result_data

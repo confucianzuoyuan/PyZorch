@@ -848,3 +848,72 @@ __host__ void abs_tensor_cuda(Tensor *tensor, float *result_data) {
 
   cudaDeviceSynchronize();
 }
+
+__global__ void matmul_tensor_cuda_kernel(float *data1, float *data2,
+                                          float *result_data, int rows1,
+                                          int cols1, int cols2) {
+  // tile使用的共享内存, tile matmul: 分块矩阵乘法
+  __shared__ float tile1[TILE_SIZE][TILE_SIZE];
+  __shared__ float tile2[TILE_SIZE][TILE_SIZE];
+
+  // 线程索引
+  int tx = threadIdx.x;
+  int ty = threadIdx.y;
+
+  // 输出的位置
+  int row = blockIdx.y * blockDim.y + threadIdx.y;
+  int col = blockIdx.x * blockDim.x + threadIdx.x;
+
+  float sum = 0.0;
+
+  // 遍历tile
+  for (int i = 0; i < (cols1 + TILE_SIZE - 1) / TILE_SIZE; ++i) {
+    // 将tile加载到共享内存
+    if (row < rows1 && i * TILE_SIZE + tx < cols1) {
+      tile1[ty][tx] = data1[row * cols1 + i * TILE_SIZE + tx];
+    } else {
+      tile1[ty][tx] = 0.0;
+    }
+
+    if (col < cols2 && i * TILE_SIZE + ty < cols1) {
+      tile2[ty][tx] = data2[(i * TILE_SIZE + ty) * cols2 + col];
+    } else {
+      tile2[ty][tx] = 0.0;
+    }
+
+    __syncthreads();
+
+    // 累加和
+    for (int k = 0; k < TILE_SIZE; ++k) {
+      sum += tile1[ty][k] * tile2[k][tx];
+    }
+  }
+
+  // 将结果写回全局内存(global memory, HBM)
+  if (row < rows1 && col < cols2) {
+    result_data[row * cols2 + col] = sum;
+  }
+}
+
+/// tensor1: MxN
+/// tensor2: NxK
+__host__ void matmul_tensor_cuda(Tensor *tensor1, Tensor *tensor2,
+                                 float *result_data) {
+  int rows1 = tensor1->shape[0]; // M
+  int cols1 = tensor1->shape[1]; // N
+  int cols2 = tensor2->shape[1]; // K
+
+  dim3 threadsPerBlock(16, 16);
+  dim3 number_of_blocks((cols2 + threadsPerBlock.x - 1) / threadsPerBlock.x,
+                        (rows1 + threadsPerBlock.y - 1) / threadsPerBlock.y);
+  matmul_tensor_cuda_kernel<<<number_of_blocks, threadsPerBlock>>>(
+      tensor1->data, tensor2->data, result_data, rows1, cols1, cols2);
+
+  cudaError_t error = cudaGetLastError();
+  if (error != cudaSuccess) {
+    fprintf(stderr, "CUDA error: %s\n", cudaGetErrorString(error));
+    exit(1);
+  }
+
+  cudaDeviceSynchronize();
+}
