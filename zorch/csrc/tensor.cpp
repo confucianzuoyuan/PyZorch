@@ -22,6 +22,12 @@ Tensor *create_tensor(float *data, int *shape, int ndim, char *device) {
   tensor->shape = shape;
   tensor->ndim = ndim;
 
+  // 深度拷贝 shape，防止 Python 侧 GC 导致指针失效
+  tensor->shape = (int *)malloc(ndim * sizeof(int));
+  if (shape != NULL) {
+    memcpy(tensor->shape, shape, ndim * sizeof(int));
+  }
+
   // 设备："cpu" or "cuda"
   // 字符串末尾是 '\0' ，所以需要长度 + 1
   tensor->device = (char *)malloc(strlen(device) + 1);
@@ -188,6 +194,7 @@ Tensor *add_tensor(Tensor *tensor1, Tensor *tensor2) {
               tensor1->shape[i], tensor2->shape[i], i);
       exit(1);
     }
+    shape[i] = tensor1->shape[i];
   }
 
   if (strcmp(tensor1->device, "cpu") == 0) {

@@ -120,7 +120,7 @@ class Sin(Function):
 
     def backward(self, gy):
         x, = self.inputs
-        gx = gy * x.cos()
+        gx = gy * cos(x)
         return gx
 
 
@@ -131,7 +131,7 @@ class Cos(Function):
 
     def backward(self, gy):
         x, = self.inputs
-        gx = gy * -x.sin()
+        gx = gy * -sin(x)
         return gx
 
 
@@ -209,3 +209,29 @@ def log(x):
 
 def exp(x):
     return Exp()(x)
+
+
+def linspace(start, stop, num=50, endpoint=True):
+    """
+    原生 Python 实现的 linspace 函数
+    :param start: 起始值
+    :param stop: 终止值
+    :param num: 生成的样本数量，默认为 50
+    :param endpoint: 是否包含终止值，默认为 True
+    """
+    if num <= 0:
+        return []
+    if num == 1:
+        return [float(start)]
+
+    # 1. 计算步长 (Step)
+    # 如果包含终点，区间被分成 num-1 份
+    # 如果不包含终点，区间被分成 num 份
+    if endpoint:
+        step = (stop - start) / (num - 1)
+    else:
+        step = (stop - start) / num
+
+    # 2. 生成序列
+    # 使用 start + i * step 而不是累加，可以减少浮点数累积误差
+    return zorch.Tensor([start + i * step for i in range(num)])

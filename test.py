@@ -1,25 +1,23 @@
 from zorch import Variable, Tensor
-from zorch.functions import sin
+import zorch.functions as F
 import math
+import matplotlib.pyplot as plt
 
+x = Variable(F.linspace(-7, 7, 200))
+y = F.sin(x)
+y.backward(create_graph=True)
 
-def f(x):
-    y = x ** 4 - 2 * x ** 2
-    return y
+logs = [y.data]
 
-
-x = Variable(Tensor(2.0))
-iters = 10
-
-for i in range(iters):
-    print(i, x)
-    y = f(x)
-    x.cleargrad()
-    y.backward(create_graph=True)
-
+for i in range(3):
+    logs.append(x.grad.data)
     gx = x.grad
     x.cleargrad()
-    gx.backward()
-    gx2 = x.grad
+    gx.backward(create_graph=True)
 
-    x.data -= gx.data / gx2.data
+labels = ["y=sin(x)", "y'", "y''", "y'''"]
+for i, v in enumerate(logs):
+    plt.plot(x.data.numpy(), logs[i].numpy(), label=labels[i])
+
+plt.legend(loc="lower right")
+plt.show()

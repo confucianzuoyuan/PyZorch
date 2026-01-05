@@ -59,10 +59,36 @@ class Tensor:
                 self._device_ctype
             )
         else:
-            self.tensor = None,
-            self.shape = None,
-            self.ndim = None,
+            self.tensor = None
+            self.shape = []
+            self.ndim = 0
             self.device = device
+
+    def numpy(self):
+        import numpy as np
+
+        # 1. 确保数据在 CPU 上
+        # NumPy 无法直接访问 GPU 内存，必须先同步回主机
+        curr_instance = self
+        if self.device != "cpu":
+            # 假设你的 .to() 方法能正确返回一个 CPU 上的新 Tensor 对象
+            curr_instance = self.to("cpu")
+
+        # 2. 从 C 结构体中提取原始数据指针
+        # self.tensor 是 POINTER(CTensor)，通过 .contents 访问结构体实例
+        data_ptr = curr_instance.tensor.contents.data
+
+        # 3. 使用 np.ctypeslib.as_array 将指针转换为 numpy 数组
+        # 我们先将其视为一个连续的 1D 数组，长度为 numel
+        # 注意：这只是创建了一个"视图"，并没有发生内存拷贝
+        array_view = np.ctypeslib.as_array(
+            data_ptr, shape=(curr_instance.numel,))
+
+        # 4. 调整形状并返回副本
+        # 使用 .copy() 是为了内存安全：
+        # 如果不 copy，当 Python 的 Tensor 对象被销毁时，C 端的内存会被 __del__ 释放，
+        # 导致 numpy 数组变成指向非法内存的"野指针"。
+        return array_view.reshape(curr_instance.shape).copy()
 
     def __len__(self):
         if len(self.shape) == 0:
@@ -315,7 +341,6 @@ class Tensor:
             Tensor._C.add_tensor.argtypes = [
                 ctypes.POINTER(CTensor), ctypes.POINTER(CTensor)]
             Tensor._C.add_tensor.restype = ctypes.POINTER(CTensor)
-
             result_tensor_ptr = Tensor._C.add_tensor(self.tensor, other.tensor)
 
             result_data = Tensor()
