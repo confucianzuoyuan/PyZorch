@@ -7,10 +7,12 @@ w = mg.tensor(2.0, requires_grad=True)
 b = mg.tensor(3.0, requires_grad=True)
 
 y = F.sigmoid(x * w + b)
+mg.draw_dot(y, 'yyyyy_graph', show_shapes=True, show_grad=True)
 print(y.shape)
 target = mg.tensor(2.0)
 
 loss = mg.nn.MSELoss()(y, target)
+mg.draw_dot(loss, 'mse_graph', show_shapes=True, show_grad=True)
 mg.print_graph_info(loss)
 loss.backward()
 

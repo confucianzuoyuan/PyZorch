@@ -1,0 +1,25 @@
+digraph G {
+    rankdir=LR;
+    node [shape=record, style=filled];
+
+    node_139982865225808 [label="tensor\nscalar\ndata: [3.0]", fillcolor=lightblue];
+    node_139982865328336 [label="tensor\nscalar\ndata: [5.0]", fillcolor=lightblue];
+    node_139982865328432 [label="tensor\nscalar\ndata: [0.9933]", fillcolor=lightblue];
+    node_139982865227056 [label="tensor\nscalar\ndata: [2.0]", fillcolor=lightblue];
+    node_139982865328000 [label="tensor\nscalar\ndata: [2.0]", fillcolor=lightblue];
+    node_139982865225664 [label="tensor\nscalar\ndata: [1.0]", fillcolor=lightgray];
+
+    op_139982865328000 [label="*", shape=circle, fillcolor=lightyellow, width=0.8, fixedsize=true];
+    node_139982865225664 -> op_139982865328000;
+    op_139982865328000 -> node_139982865328000;
+    node_139982865227056 -> op_139982865328000;
+    op_139982865328000 -> node_139982865328000;
+    op_139982865328432 [label="Sigmoid", shape=circle, fillcolor=lightyellow, width=0.8, fixedsize=true];
+    node_139982865328336 -> op_139982865328432;
+    op_139982865328432 -> node_139982865328432;
+    op_139982865328336 [label="+", shape=circle, fillcolor=lightyellow, width=0.8, fixedsize=true];
+    node_139982865328000 -> op_139982865328336;
+    op_139982865328336 -> node_139982865328336;
+    node_139982865225808 -> op_139982865328336;
+    op_139982865328336 -> node_139982865328336;
+}

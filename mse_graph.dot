@@ -1,0 +1,54 @@
+digraph G {
+    rankdir=LR;
+    node [shape=record, style=filled];
+
+    node_139982865329152 [label="tensor\nscalar\ndata: [-2.0]", fillcolor=lightgray];
+    node_139982865329728 [label="tensor\nscalar\ndata: [1.0134]", fillcolor=lightblue];
+    node_139982865328720 [label="tensor\nscalar\ndata: [2.0]", fillcolor=lightgray];
+    node_139982865225808 [label="tensor\nscalar\ndata: [3.0]", fillcolor=lightblue];
+    node_139982865328000 [label="tensor\nscalar\ndata: [2.0]", fillcolor=lightblue];
+    node_139982865328336 [label="tensor\nscalar\ndata: [5.0]", fillcolor=lightblue];
+    node_139982865225664 [label="tensor\nscalar\ndata: [1.0]", fillcolor=lightgray];
+    node_139982865328432 [label="tensor\nscalar\ndata: [0.9933]", fillcolor=lightblue];
+    node_139982865227056 [label="tensor\nscalar\ndata: [2.0]", fillcolor=lightblue];
+    node_139982865330016 [label="tensor\nscalar\ndata: [1.0]", fillcolor=lightgray];
+    node_139982865329536 [label="tensor\nscalar\ndata: [1.0134]", fillcolor=lightblue];
+    node_139982865329056 [label="tensor\nscalar\ndata: [-1.0]", fillcolor=lightgray];
+    node_139982865330112 [label="tensor\nscalar\ndata: [1.0134]", fillcolor=lightblue];
+    node_139982865329104 [label="tensor\nscalar\ndata: [-1.0067]", fillcolor=lightblue];
+
+    op_139982865328000 [label="*", shape=circle, fillcolor=lightyellow, width=0.8, fixedsize=true];
+    node_139982865225664 -> op_139982865328000;
+    op_139982865328000 -> node_139982865328000;
+    node_139982865227056 -> op_139982865328000;
+    op_139982865328000 -> node_139982865328000;
+    op_139982865329536 [label="*", shape=circle, fillcolor=lightyellow, width=0.8, fixedsize=true];
+    node_139982865329104 -> op_139982865329536;
+    op_139982865329536 -> node_139982865329536;
+    op_139982865328432 [label="Sigmoid", shape=circle, fillcolor=lightyellow, width=0.8, fixedsize=true];
+    node_139982865328336 -> op_139982865328432;
+    op_139982865328432 -> node_139982865328432;
+    op_139982865328336 [label="+", shape=circle, fillcolor=lightyellow, width=0.8, fixedsize=true];
+    node_139982865328000 -> op_139982865328336;
+    op_139982865328336 -> node_139982865328336;
+    op_139982865329104 [label="+", shape=circle, fillcolor=lightyellow, width=0.8, fixedsize=true];
+    node_139982865329152 -> op_139982865329104;
+    op_139982865329104 -> node_139982865329104;
+    op_139982865329152 [label="*", shape=circle, fillcolor=lightyellow, width=0.8, fixedsize=true];
+    node_139982865329056 -> op_139982865329152;
+    op_139982865329152 -> node_139982865329152;
+    node_139982865328720 -> op_139982865329152;
+    op_139982865329152 -> node_139982865329152;
+    op_139982865329728 [label="sum", shape=circle, fillcolor=lightyellow, width=0.8, fixedsize=true];
+    node_139982865329536 -> op_139982865329728;
+    op_139982865329728 -> node_139982865329728;
+    node_139982865225808 -> op_139982865328336;
+    op_139982865328336 -> node_139982865328336;
+    node_139982865328432 -> op_139982865329104;
+    op_139982865329104 -> node_139982865329104;
+    op_139982865330112 [label="*", shape=circle, fillcolor=lightyellow, width=0.8, fixedsize=true];
+    node_139982865329728 -> op_139982865330112;
+    op_139982865330112 -> node_139982865330112;
+    node_139982865330016 -> op_139982865330112;
+    op_139982865330112 -> node_139982865330112;
+}
