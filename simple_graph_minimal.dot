@@ -1,0 +1,22 @@
+digraph G {
+    rankdir=LR;
+    node [shape=box, style=filled];
+
+    node_140253953861168 [label="z = y + 1", fillcolor=lightblue];
+    node_140253953860688 [label="y = x * 2", fillcolor=lightblue];
+    node_140253953861360 [label="loss", fillcolor=lightblue];
+    node_140253953860496 [label="scalar", fillcolor=lightgray];
+    node_140253953861024 [label="scalar", fillcolor=lightgray];
+    node_140253964221376 [label="x", fillcolor=lightblue];
+
+    op_140253953861168 [label="+", shape=circle, fillcolor=lightyellow, width=0.6];
+    node_140253953860688 -> op_140253953861168 -> node_140253953861168;
+    op_140253953860688 [label="*", shape=circle, fillcolor=lightyellow, width=0.6];
+    node_140253953860496 -> op_140253953860688 -> node_140253953860688;
+    op_140253953861360 [label="sum", shape=circle, fillcolor=lightyellow, width=0.6];
+    node_140253953861168 -> op_140253953861360 -> node_140253953861360;
+    op_140253953860688 [label="*", shape=circle, fillcolor=lightyellow, width=0.6];
+    node_140253964221376 -> op_140253953860688 -> node_140253953860688;
+    op_140253953861168 [label="+", shape=circle, fillcolor=lightyellow, width=0.6];
+    node_140253953861024 -> op_140253953861168 -> node_140253953861168;
+}

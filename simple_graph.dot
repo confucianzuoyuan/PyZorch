@@ -1,0 +1,25 @@
+digraph G {
+    rankdir=LR;
+    node [shape=record, style=filled];
+
+    node_140253953861168 [label="<b>z = y + 1</b>\nshape: (1, 2)\ndata: [3.0, 5.0]\ngrad: [1.0, 1.0]", fillcolor=lightblue];
+    node_140253953860688 [label="<b>y = x * 2</b>\nshape: (1, 2)\ndata: [2.0, 4.0]\ngrad: [1.0, 1.0]", fillcolor=lightblue];
+    node_140253953861360 [label="<b>loss</b>\nscalar\ndata: [8.0]\ngrad: [1.0]", fillcolor=lightblue];
+    node_140253953860496 [label="tensor\nscalar\ndata: [2.0]", fillcolor=lightgray];
+    node_140253953861024 [label="tensor\nscalar\ndata: [1.0]", fillcolor=lightgray];
+    node_140253964221376 [label="<b>x</b>\nshape: (1, 2)\ndata: [1.0, 2.0]\ngrad: [2.0, 2.0]", fillcolor=lightblue];
+
+    op_140253953861168 [label="+", shape=circle, fillcolor=lightyellow, width=0.8, fixedsize=true];
+    node_140253953860688 -> op_140253953861168;
+    op_140253953861168 -> node_140253953861168;
+    op_140253953860688 [label="*", shape=circle, fillcolor=lightyellow, width=0.8, fixedsize=true];
+    node_140253953860496 -> op_140253953860688;
+    op_140253953860688 -> node_140253953860688;
+    op_140253953861360 [label="sum", shape=circle, fillcolor=lightyellow, width=0.8, fixedsize=true];
+    node_140253953861168 -> op_140253953861360;
+    op_140253953861360 -> node_140253953861360;
+    node_140253964221376 -> op_140253953860688;
+    op_140253953860688 -> node_140253953860688;
+    node_140253953861024 -> op_140253953861168;
+    op_140253953861168 -> node_140253953861168;
+}

@@ -1,0 +1,18 @@
+digraph G {
+    rankdir=LR;
+    node [shape=record, style=filled];
+
+    node_140253953948656 [label="<b>A (2x3)</b>\nshape: (2, 3)\ndata: [1.0, 2.0, 3.0]...\ngrad: [15.0, 19.0, 23.0]...", fillcolor=lightblue];
+    node_140253953949232 [label="<b>loss</b>\nscalar\ndata: [415.0]\ngrad: [1.0]", fillcolor=lightblue];
+    node_140253953948464 [label="<b>B (3x2)</b>\nshape: (3, 2)\ndata: [7.0, 8.0, 9.0]...\ngrad: [5.0, 5.0, 7.0]...", fillcolor=lightblue];
+    node_140253953949040 [label="<b>C = A @ B</b>\nshape: (2, 2)\ndata: [58.0, 64.0, 139.0, 154.0]\ngrad: [1.0, 1.0, 1.0, 1.0]", fillcolor=lightblue];
+
+    op_140253953949040 [label="@", shape=circle, fillcolor=lightyellow, width=0.8, fixedsize=true];
+    node_140253953948464 -> op_140253953949040;
+    op_140253953949040 -> node_140253953949040;
+    op_140253953949232 [label="sum", shape=circle, fillcolor=lightyellow, width=0.8, fixedsize=true];
+    node_140253953949040 -> op_140253953949232;
+    op_140253953949232 -> node_140253953949232;
+    node_140253953948656 -> op_140253953949040;
+    op_140253953949040 -> node_140253953949040;
+}

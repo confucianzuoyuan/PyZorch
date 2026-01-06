@@ -1,0 +1,34 @@
+digraph G {
+    rankdir=LR;
+    node [shape=record, style=filled];
+
+    node_140253953947696 [label="<b>e = c + d</b>\nshape: (2, 2)\ndata: [11.0, 20.0, 31.0, 44.0]\ngrad: [1.0, 1.0, 1.0, 1.0]", fillcolor=lightblue];
+    node_140253953947792 [label="<b>f = ReLU(e)</b>\nshape: (2, 2)\ndata: [11.0, 20.0, 31.0, 44.0]\ngrad: [1.0, 1.0, 1.0, 1.0]", fillcolor=lightblue];
+    node_140253953947360 [label="<b>d = a * b</b>\nshape: (2, 2)\ndata: [5.0, 12.0, 21.0, 32.0]\ngrad: [1.0, 1.0, 1.0, 1.0]", fillcolor=lightblue];
+    node_140253953937760 [label="<b>b</b>\nshape: (2, 2)\ndata: [5.0, 6.0, 7.0, 8.0]\ngrad: [2.0, 3.0, 4.0, 5.0]", fillcolor=lightblue];
+    node_140253953946976 [label="<b>c = a + b</b>\nshape: (2, 2)\ndata: [6.0, 8.0, 10.0, 12.0]\ngrad: [1.0, 1.0, 1.0, 1.0]", fillcolor=lightblue];
+    node_140253953948032 [label="<b>loss</b>\nscalar\ndata: [106.0]\ngrad: [1.0]", fillcolor=lightblue];
+    node_140253964112320 [label="<b>a</b>\nshape: (2, 2)\ndata: [1.0, 2.0, 3.0, 4.0]\ngrad: [6.0, 7.0, 8.0, 9.0]", fillcolor=lightblue];
+
+    op_140253953947792 [label="ReLU", shape=circle, fillcolor=lightyellow, width=0.8, fixedsize=true];
+    node_140253953947696 -> op_140253953947792;
+    op_140253953947792 -> node_140253953947792;
+    op_140253953948032 [label="sum", shape=circle, fillcolor=lightyellow, width=0.8, fixedsize=true];
+    node_140253953947792 -> op_140253953948032;
+    op_140253953948032 -> node_140253953948032;
+    op_140253953947360 [label="*", shape=circle, fillcolor=lightyellow, width=0.8, fixedsize=true];
+    node_140253964112320 -> op_140253953947360;
+    op_140253953947360 -> node_140253953947360;
+    node_140253953937760 -> op_140253953947360;
+    op_140253953947360 -> node_140253953947360;
+    op_140253953947696 [label="+", shape=circle, fillcolor=lightyellow, width=0.8, fixedsize=true];
+    node_140253953947360 -> op_140253953947696;
+    op_140253953947696 -> node_140253953947696;
+    op_140253953946976 [label="+", shape=circle, fillcolor=lightyellow, width=0.8, fixedsize=true];
+    node_140253964112320 -> op_140253953946976;
+    op_140253953946976 -> node_140253953946976;
+    node_140253953937760 -> op_140253953946976;
+    op_140253953946976 -> node_140253953946976;
+    node_140253953946976 -> op_140253953947696;
+    op_140253953947696 -> node_140253953947696;
+}

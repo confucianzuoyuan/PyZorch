@@ -1,0 +1,35 @@
+digraph G {
+    rankdir=TB;
+    node [shape=record, style=filled];
+
+    node_140253954048512 [label="<b>ReLU(x)</b>\nshape: (1, 3)\ndata: [0.0, 0.0, 1.0]\ngrad: [1.0, 1.0, 1.0]", fillcolor=lightblue];
+    node_140253954048656 [label="<b>Sigmoid(x)</b>\nshape: (1, 3)\ndata: [0.2689, 0.5, 0.7311]\ngrad: [1.0, 1.0, 1.0]", fillcolor=lightblue];
+    node_140253954049184 [label="tensor\nshape: (1, 3)\ndata: [0.2689, 0.5, 1.7311]\ngrad: [1.0, 1.0, 1.0]", fillcolor=lightblue];
+    node_140253954049712 [label="<b>loss</b>\nscalar\ndata: [2.5]\ngrad: [1.0]", fillcolor=lightblue];
+    node_140253954048800 [label="<b>Tanh(x)</b>\nshape: (1, 3)\ndata: [-0.7616, 0.0, 0.7616]\ngrad: [1.0, 1.0, 1.0]", fillcolor=lightblue];
+    node_140253954048416 [label="<b>x</b>\nshape: (1, 3)\ndata: [-1.0, 0.0, 1.0]\ngrad: [0.6166, 1.25, 1.6166]", fillcolor=lightblue];
+    node_140253954049520 [label="<b>y = ReLU + Sigmoid + Tanh</b>\nshape: (1, 3)\ndata: [-0.4927, 0.5, 2.4927]\ngrad: [1.0, 1.0, 1.0]", fillcolor=lightblue];
+
+    op_140253954049184 [label="+", shape=circle, fillcolor=lightyellow, width=0.8, fixedsize=true];
+    node_140253954048512 -> op_140253954049184;
+    op_140253954049184 -> node_140253954049184;
+    op_140253954048512 [label="ReLU", shape=circle, fillcolor=lightyellow, width=0.8, fixedsize=true];
+    node_140253954048416 -> op_140253954048512;
+    op_140253954048512 -> node_140253954048512;
+    op_140253954048656 [label="Sigmoid", shape=circle, fillcolor=lightyellow, width=0.8, fixedsize=true];
+    node_140253954048416 -> op_140253954048656;
+    op_140253954048656 -> node_140253954048656;
+    node_140253954048656 -> op_140253954049184;
+    op_140253954049184 -> node_140253954049184;
+    op_140253954049520 [label="+", shape=circle, fillcolor=lightyellow, width=0.8, fixedsize=true];
+    node_140253954049184 -> op_140253954049520;
+    op_140253954049520 -> node_140253954049520;
+    node_140253954048800 -> op_140253954049520;
+    op_140253954049520 -> node_140253954049520;
+    op_140253954048800 [label="Tanh", shape=circle, fillcolor=lightyellow, width=0.8, fixedsize=true];
+    node_140253954048416 -> op_140253954048800;
+    op_140253954048800 -> node_140253954048800;
+    op_140253954049712 [label="sum", shape=circle, fillcolor=lightyellow, width=0.8, fixedsize=true];
+    node_140253954049520 -> op_140253954049712;
+    op_140253954049712 -> node_140253954049712;
+}
